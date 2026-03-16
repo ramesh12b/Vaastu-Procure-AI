@@ -4,1062 +4,1394 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vastu-Procure AI — Smart Interior BOQ for Indian Homes</title>
-<meta name="description" content="India's first Vastu-intelligent interior BOQ platform. Generate accurate material lists, AI room visuals, and connect with verified vendors — in under 3 minutes.">
+<meta name="description" content="India's first Vastu-intelligent interior BOQ platform. Generate accurate material lists, AI room visuals, and connect with verified vendors in under 3 minutes.">
+<meta property="og:title" content="Vastu-Procure AI — Smart Interior BOQ for Indian Homes">
+<meta property="og:description" content="India's first Vastu-intelligent interior BOQ platform.">
+<meta name="theme-color" content="#080706">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-/* ── RESET & BASE ─────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --ink:        #0C0B0A;
-  --s1:         #131210;
-  --s2:         #1B1915;
-  --s3:         #242119;
-  --s4:         #2E2A22;
-  --gold:       #D4A843;
-  --gold-dim:   #9A7830;
-  --gold-pale:  #E8C97A;
-  --gold-glow:  rgba(212,168,67,.12);
-  --gold-glow2: rgba(212,168,67,.06);
-  --cream:      #F0E6CC;
-  --cream-dim:  #A89978;
-  --cream-muted:#5A5040;
-  --teal:       #2ABFAA;
-  --fire:       #E85D30;
-  --border:     rgba(212,168,67,.14);
-  --border-s:   rgba(212,168,67,.28);
-  --r-sm: 8px;
-  --r-md: 14px;
-  --r-lg: 20px;
+/* ════════════════════════════════════════════════════════════
+   RESET & TOKENS
+════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Backgrounds */
+  --bg0:#080706;
+  --bg1:#0F0E0C;
+  --bg2:#161411;
+  --bg3:#1E1B14;
+  --bg4:#272318;
+  --bg5:#302C1F;
+
+  /* Gold palette */
+  --gold:        #C9943A;
+  --gold-bright: #E8C060;
+  --gold-pale:   #F0D080;
+  --gold-dim:    #8B6520;
+  --gold-glow:   rgba(201,148,58,.13);
+  --gold-glow2:  rgba(201,148,58,.06);
+  --gold-line:   rgba(201,148,58,.22);
+
+  /* Text */
+  --cream:        #F2E8D4;
+  --cream-2:      #C8B896;
+  --cream-3:      #8A7A60;
+  --cream-4:      #4A4030;
+
+  /* Accents */
+  --teal:   #1FBFAA;
+  --fire:   #E55A2B;
+  --blue:   #6090D8;
+
+  /* UI */
+  --border:   rgba(201,148,58,.14);
+  --border-h: rgba(201,148,58,.30);
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
   --r-xl: 32px;
-  --display: 'Cormorant Garamond', Georgia, serif;
-  --body: 'DM Sans', sans-serif;
-  --mono: 'DM Mono', monospace;
-  --ease-gold: cubic-bezier(.22,.61,.36,1);
-}
-html { scroll-behavior: smooth; }
-body {
-  font-family: var(--body);
-  background: var(--ink);
-  color: var(--cream);
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-::selection { background: var(--gold); color: var(--ink); }
-img { max-width: 100%; display: block; }
-a { text-decoration: none; color: inherit; }
 
-/* ── SCROLLBAR ───────────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--s1); }
-::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+  /* Fonts */
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+  --mono:  'DM Mono', monospace;
 
-/* ── UTILITY ─────────────────────────────────────────────── */
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-.gold { color: var(--gold); }
-.cream { color: var(--cream); }
-.muted { color: var(--cream-muted); }
-.serif { font-family: var(--display); }
-.tag {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--gold); background: var(--gold-glow);
-  border: .5px solid var(--border-s); border-radius: 99px;
-  padding: 5px 14px;
-}
-.tag::before { content: '◆'; font-size: 7px; }
-
-/* ── NOISE OVERLAY ───────────────────────────────────────── */
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
-  opacity: .4;
+  /* Easing */
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
 }
 
-/* ── NAV ─────────────────────────────────────────────────── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  padding: 0 24px;
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px);
-  background: rgba(12,11,10,.75);
-  border-bottom: .5px solid var(--border);
-  transition: box-shadow .3s;
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg0);
+  color:var(--cream);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
-.nav-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; align-items: center; justify-content: space-between;
-  height: 64px;
-}
-.logo {
-  display: flex; align-items: center; gap: 10px;
-  font-family: var(--display); font-size: 20px; font-weight: 600;
-  letter-spacing: .01em; color: var(--cream);
-}
-.logo-mark {
-  width: 34px; height: 34px; position: relative;
-  display: flex; align-items: center; justify-content: center;
-}
-.logo-mark svg { width: 34px; height: 34px; }
-.logo span { color: var(--gold); }
-.nav-links { display: flex; align-items: center; gap: 32px; }
-.nav-links a {
-  font-size: 13px; font-weight: 400; color: var(--cream-dim);
-  letter-spacing: .02em; transition: color .2s;
-}
-.nav-links a:hover { color: var(--cream); }
-.nav-cta {
-  display: flex; align-items: center; gap: 12px;
-}
-.btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--body); font-size: 13px; font-weight: 500;
-  padding: 9px 20px; border-radius: var(--r-sm);
-  cursor: pointer; transition: all .22s var(--ease-gold);
-  border: none; outline: none;
-  letter-spacing: .02em;
-}
-.btn-ghost {
-  background: transparent; color: var(--cream-dim);
-  border: .5px solid var(--border);
-}
-.btn-ghost:hover { border-color: var(--border-s); color: var(--cream); }
-.btn-gold {
-  background: var(--gold); color: var(--ink);
-  font-weight: 600;
-  box-shadow: 0 0 0 0 rgba(212,168,67,.4);
-}
-.btn-gold:hover {
-  background: var(--gold-pale);
-  box-shadow: 0 0 24px rgba(212,168,67,.3);
-  transform: translateY(-1px);
-}
-.btn-gold:active { transform: translateY(0); }
-.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
-.hamburger span { display: block; width: 22px; height: 1.5px; background: var(--cream-dim); border-radius: 1px; transition: all .2s; }
+::selection{background:var(--gold);color:var(--bg0)}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--sans)}
 
-/* ── HERO ─────────────────────────────────────────────────── */
-#hero {
-  min-height: 100vh; padding-top: 64px;
-  display: grid; grid-template-columns: 1fr 1fr;
-  align-items: center; gap: 0;
-  position: relative; overflow: hidden;
+/* Scrollbar */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px}
+
+/* ════════════════════════════════════════════════════════════
+   NOISE GRAIN OVERLAY
+════════════════════════════════════════════════════════════ */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  opacity:.5;
 }
-.hero-bg {
-  position: absolute; inset: 0; pointer-events: none;
+
+/* ════════════════════════════════════════════════════════════
+   UTILITY
+════════════════════════════════════════════════════════════ */
+.container{max-width:1200px;margin:0 auto;padding:0 28px}
+.tag{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--sans);font-size:10.5px;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gold-bright);background:var(--gold-glow);
+  border:.5px solid var(--border-h);border-radius:99px;
+  padding:5px 15px;
+}
+.tag::before{content:'◆';font-size:6px;opacity:.8}
+.section-tag{margin-bottom:16px;display:inline-block}
+
+/* ════════════════════════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--sans);font-size:13.5px;font-weight:500;
+  padding:10px 22px;border-radius:var(--r-sm);
+  cursor:pointer;transition:all .24s var(--ease);
+  border:none;outline:none;letter-spacing:.02em;white-space:nowrap;
+}
+.btn-primary{
+  background:var(--gold);color:var(--bg0);font-weight:600;
+  box-shadow:0 0 0 0 rgba(201,148,58,.4);
+}
+.btn-primary:hover{
+  background:var(--gold-bright);
+  box-shadow:0 0 32px rgba(201,148,58,.35),0 4px 16px rgba(0,0,0,.4);
+  transform:translateY(-2px);
+}
+.btn-primary:active{transform:translateY(0);box-shadow:none}
+.btn-ghost{
+  background:transparent;color:var(--cream-2);
+  border:.5px solid var(--border);
+}
+.btn-ghost:hover{border-color:var(--border-h);color:var(--cream);background:rgba(255,255,255,.03)}
+.btn-lg{padding:15px 34px;font-size:15px;border-radius:var(--r-md)}
+.btn-wa{
+  background:#1A3E1C;border:.5px solid #2D6B30;color:#72C97A;
+}
+.btn-wa:hover{background:#235626;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+
+/* ════════════════════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════════════════════ */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:0 28px;
+  background:rgba(8,7,6,.80);
+  backdrop-filter:blur(24px) saturate(1.6);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:.5px solid var(--border);
+  transition:box-shadow .3s,background .3s;
+}
+#nav.scrolled{
+  background:rgba(8,7,6,.95);
+  box-shadow:0 1px 0 var(--border),0 8px 32px rgba(0,0,0,.4);
+}
+.nav-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:66px;
+}
+.logo{
+  display:flex;align-items:center;gap:11px;
+  font-family:var(--serif);font-size:21px;font-weight:500;
+  color:var(--cream);letter-spacing:.01em;
+  transition:opacity .2s;
+}
+.logo:hover{opacity:.85}
+.logo-icon{
+  width:36px;height:36px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-icon svg{width:36px;height:36px}
+.logo-text em{color:var(--gold);font-style:normal}
+
+.nav-links{display:flex;align-items:center;gap:34px}
+.nav-links a{
+  font-size:13px;color:var(--cream-3);letter-spacing:.02em;
+  transition:color .2s;position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;
+  height:.5px;background:var(--gold);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .25s var(--ease);
+}
+.nav-links a:hover{color:var(--cream-2)}
+.nav-links a:hover::after{transform:scaleX(1)}
+
+.nav-actions{display:flex;align-items:center;gap:12px}
+
+/* Hamburger */
+.hamburger{
+  display:none;flex-direction:column;gap:5px;
+  cursor:pointer;padding:5px;background:none;border:none;
+}
+.hamburger span{
+  display:block;width:22px;height:1.5px;
+  background:var(--cream-2);border-radius:1px;
+  transition:all .2s;
+}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4.5px,4.5px)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4.5px,-4.5px)}
+
+/* Mobile drawer */
+.mobile-menu{
+  display:none;position:fixed;
+  top:66px;left:0;right:0;bottom:0;
+  background:rgba(8,7,6,.98);
+  backdrop-filter:blur(20px);
+  z-index:199;padding:32px 28px;
+  flex-direction:column;gap:4px;
+}
+.mobile-menu.open{display:flex;animation:slideDown .25s var(--ease) both}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.mobile-menu a{
+  font-size:17px;color:var(--cream-2);
+  padding:14px 0;border-bottom:.5px solid var(--border);
+  transition:color .2s;
+}
+.mobile-menu a:hover{color:var(--cream)}
+.mobile-menu .menu-btns{
+  margin-top:24px;display:flex;flex-direction:column;gap:10px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════════════════ */
+#hero{
+  min-height:100vh;
+  padding-top:66px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+
+/* Atmospheric layered gradients */
+.hero-atmosphere{
+  position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 60% 70% at 70% 50%, rgba(212,168,67,.07) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 50% at 20% 80%, rgba(42,191,170,.05) 0%, transparent 60%);
+    radial-gradient(ellipse 75% 65% at 50% 35%, rgba(201,148,58,.09) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 50% at 10% 90%, rgba(31,191,170,.06) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 90% 10%, rgba(229,90,43,.04) 0%, transparent 50%),
+    radial-gradient(ellipse 30% 30% at 80% 80%, rgba(96,144,216,.04) 0%, transparent 50%);
 }
-.hero-grid-lines {
-  position: absolute; inset: 0; pointer-events: none; opacity: .04;
+
+/* Fine grid */
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;
   background-image:
-    linear-gradient(var(--border-s) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border-s) 1px, transparent 1px);
-  background-size: 80px 80px;
-}
-.hero-left {
-  padding: 80px 60px 80px 0;
-  position: relative; z-index: 2;
-  animation: heroIn .9s var(--ease-gold) both;
-}
-@keyframes heroIn {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.hero-eyebrow { margin-bottom: 20px; }
-.hero-headline {
-  font-family: var(--display);
-  font-size: clamp(40px, 5vw, 64px);
-  font-weight: 500; line-height: 1.1;
-  letter-spacing: -.02em; color: var(--cream);
-  margin-bottom: 24px;
-}
-.hero-headline em { font-style: italic; color: var(--gold); }
-.hero-sub {
-  font-size: 16px; font-weight: 400; line-height: 1.7;
-  color: var(--cream-dim); max-width: 460px;
-  margin-bottom: 40px;
-}
-.hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 48px; }
-.btn-hero {
-  padding: 14px 28px; font-size: 14px; border-radius: var(--r-md);
-}
-.hero-stats {
-  display: flex; gap: 32px; padding-top: 32px;
-  border-top: .5px solid var(--border);
-}
-.h-stat-n {
-  font-family: var(--display); font-size: 28px; font-weight: 500;
-  color: var(--gold); line-height: 1;
-}
-.h-stat-l { font-size: 12px; color: var(--cream-muted); margin-top: 4px; letter-spacing: .04em; }
-
-/* Mandala / Vastu Compass */
-.hero-right {
-  position: relative; z-index: 2;
-  display: flex; align-items: center; justify-content: center;
-  padding: 80px 0;
-  animation: heroIn .9s .15s var(--ease-gold) both;
-}
-.mandala-wrap {
-  position: relative; width: 480px; height: 480px;
-  display: flex; align-items: center; justify-content: center;
-}
-.mandala-glow {
-  position: absolute; inset: 0; border-radius: 50%;
-  background: radial-gradient(circle, rgba(212,168,67,.12) 0%, transparent 70%);
-  animation: pulse 4s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: .7; transform: scale(1); }
-  50%       { opacity: 1; transform: scale(1.04); }
-}
-.mandala-ring-1 {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: .5px solid rgba(212,168,67,.2);
-  animation: spin 40s linear infinite;
-}
-.mandala-ring-2 {
-  position: absolute; inset: 40px; border-radius: 50%;
-  border: .5px solid rgba(212,168,67,.15);
-  animation: spin 28s linear infinite reverse;
-}
-.mandala-ring-3 {
-  position: absolute; inset: 90px; border-radius: 50%;
-  border: .5px solid rgba(212,168,67,.2);
-  animation: spin 18s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Vastu Compass SVG */
-#vastu-compass { width: 360px; height: 360px; position: relative; z-index: 2; }
-
-/* ── BRAND STRIP ─────────────────────────────────────────── */
-#brands {
-  padding: 28px 0;
-  border-top: .5px solid var(--border);
-  border-bottom: .5px solid var(--border);
-  background: var(--s1);
-}
-.brands-inner {
-  display: flex; align-items: center; justify-content: center;
-  gap: 0; flex-wrap: wrap;
-}
-.brand-item {
-  padding: 10px 36px;
-  border-right: .5px solid var(--border);
-  display: flex; align-items: center; gap: 10px;
-  font-size: 13px; font-weight: 500; letter-spacing: .04em;
-  color: var(--cream-muted); transition: color .2s;
-}
-.brand-item:last-child { border-right: none; }
-.brand-item:hover { color: var(--cream-dim); }
-.brand-item strong { color: var(--cream-dim); font-weight: 600; }
-.brand-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); opacity: .5; }
-.brands-label {
-  font-size: 11px; text-transform: uppercase; letter-spacing: .14em;
-  color: var(--cream-muted); margin-right: 32px; white-space: nowrap;
+    linear-gradient(rgba(201,148,58,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,148,58,.06) 1px,transparent 1px);
+  background-size:68px 68px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 75%);
 }
 
-/* ── SECTION SHARED ──────────────────────────────────────── */
-section { padding: 100px 0; }
-.section-header { text-align: center; max-width: 640px; margin: 0 auto 64px; }
-.section-title {
-  font-family: var(--display);
-  font-size: clamp(32px, 4vw, 52px);
-  font-weight: 500; line-height: 1.15;
-  letter-spacing: -.02em; color: var(--cream);
-  margin: 14px 0 16px;
+/* Dot field */
+.hero-dots{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
 }
-.section-title em { font-style: italic; color: var(--gold); }
-.section-sub { font-size: 15px; color: var(--cream-dim); line-height: 1.7; }
+.hero-dots span{
+  position:absolute;width:2px;height:2px;border-radius:50%;
+  background:var(--gold);opacity:0;
+  animation:twinkle var(--d,4s) var(--delay,0s) ease-in-out infinite;
+}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:.5;transform:scale(1)}}
 
-/* ── FEATURES ─────────────────────────────────────────────── */
-#features { background: var(--s1); }
-.features-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1px; background: var(--border);
-  border: .5px solid var(--border); border-radius: var(--r-xl);
-  overflow: hidden;
+/* Giant compass watermark */
+.compass-bg{
+  position:absolute;top:50%;left:50%;
+  width:min(760px,100vw);height:min(760px,100vw);
+  transform:translate(-50%,-50%);
+  pointer-events:none;opacity:.045;
+  animation:rotateSlow 140s linear infinite;
 }
-.feat-card {
-  background: var(--s2); padding: 44px 36px;
-  position: relative; overflow: hidden;
-  transition: background .3s;
-  cursor: default;
+@keyframes rotateSlow{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* Orbital rings */
+.hero-ring{
+  position:absolute;top:50%;left:50%;
+  border-radius:50%;pointer-events:none;
 }
-.feat-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0; transition: opacity .3s;
+.ring-a{
+  width:min(880px,125vw);height:min(880px,125vw);
+  margin-left:calc(-1*min(880px,125vw)/2);
+  margin-top:calc(-1*min(880px,125vw)/2);
+  border:.5px solid rgba(201,148,58,.07);
+  animation:rotateSlow 100s linear infinite;
 }
-.feat-card:hover { background: var(--s3); }
-.feat-card:hover::before { opacity: 1; }
-.feat-icon {
-  width: 52px; height: 52px; margin-bottom: 24px;
-  border-radius: 12px; background: var(--gold-glow);
-  border: .5px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  transition: transform .3s var(--ease-gold);
-}
-.feat-card:hover .feat-icon { transform: scale(1.08); }
-.feat-n {
-  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-  color: var(--gold-dim); margin-bottom: 12px;
-}
-.feat-title {
-  font-family: var(--display); font-size: 22px; font-weight: 500;
-  color: var(--cream); margin-bottom: 12px; line-height: 1.25;
-}
-.feat-body { font-size: 14px; color: var(--cream-dim); line-height: 1.7; }
-.feat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
-.chip {
-  font-size: 11px; font-weight: 500; padding: 4px 10px;
-  border-radius: 99px; background: var(--s4);
-  border: .5px solid var(--border);
-  color: var(--cream-muted); letter-spacing: .03em;
+.ring-b{
+  width:min(640px,90vw);height:min(640px,90vw);
+  margin-left:calc(-1*min(640px,90vw)/2);
+  margin-top:calc(-1*min(640px,90vw)/2);
+  border:.5px solid rgba(201,148,58,.06);
+  animation:rotateSlow 70s linear infinite reverse;
 }
 
-/* ── BOQ GENERATOR ───────────────────────────────────────── */
-#boq { background: var(--ink); }
-.boq-wrap {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 2px; background: var(--border);
-  border: .5px solid var(--border); border-radius: var(--r-xl);
-  overflow: hidden;
+/* Hero content */
+.hero-body{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;padding:80px 28px 80px;
+  max-width:900px;width:100%;
 }
-.boq-form-side { background: var(--s2); padding: 48px; }
-.boq-output-side { background: var(--s1); padding: 48px; position: relative; }
-.boq-section-label {
-  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
-  color: var(--gold); margin-bottom: 28px;
-  display: flex; align-items: center; gap: 10px;
+
+/* Staggered entrance */
+.hero-body > *{
+  animation:riseIn .9s var(--ease) both;
 }
-.boq-section-label::after {
-  content: ''; flex: 1; height: .5px; background: var(--border);
+.hero-body > *:nth-child(1){animation-delay:.05s}
+.hero-body > *:nth-child(2){animation-delay:.15s}
+.hero-body > *:nth-child(3){animation-delay:.25s}
+.hero-body > *:nth-child(4){animation-delay:.35s}
+.hero-body > *:nth-child(5){animation-delay:.45s}
+.hero-body > *:nth-child(6){animation-delay:.55s}
+@keyframes riseIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+.hero-eyebrow{margin-bottom:26px}
+
+.hero-h1{
+  font-family:var(--serif);
+  font-size:clamp(50px,8vw,100px);
+  font-weight:500;line-height:1.04;
+  letter-spacing:-.025em;
+  color:var(--cream);margin-bottom:0;
 }
-.field-group { margin-bottom: 22px; }
-.field-label {
-  display: block; font-size: 12px; font-weight: 500;
-  color: var(--cream-muted); margin-bottom: 8px;
-  text-transform: uppercase; letter-spacing: .08em;
+.hero-h1 .line1{display:block}
+.hero-h1 .line2{
+  display:block;
+  font-style:italic;color:var(--gold-bright);
+  font-weight:400;
 }
-.field-input, .field-select {
-  width: 100%; padding: 12px 16px;
-  background: var(--s3); border: .5px solid var(--border);
-  border-radius: var(--r-sm); color: var(--cream);
-  font-family: var(--body); font-size: 14px;
-  outline: none; transition: border-color .2s, box-shadow .2s;
-  appearance: none;
+.hero-h1 .line3{
+  display:block;
+  color:var(--cream-2);font-weight:300;
 }
-.field-input:focus, .field-select:focus {
-  border-color: var(--gold-dim);
-  box-shadow: 0 0 0 3px rgba(212,168,67,.1);
+
+/* Gold shimmer on headline */
+.shimmer-text{
+  background:linear-gradient(90deg,var(--gold-bright) 0%,var(--gold-pale) 40%,var(--gold-bright) 60%,var(--gold) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:goldShimmer 4s linear infinite;
 }
-.field-input::placeholder { color: var(--cream-muted); }
-.field-select option { background: var(--s3); }
-.select-wrap { position: relative; }
-.select-wrap::after {
-  content: '▾'; position: absolute; right: 14px; top: 50%;
-  transform: translateY(-50%); pointer-events: none;
-  color: var(--gold-dim); font-size: 12px;
+@keyframes goldShimmer{to{background-position:200% center}}
+
+.hero-divider{
+  width:1px;height:32px;background:var(--border-h);
+  margin:28px auto;
 }
-.room-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-.room-pill {
-  padding: 8px 16px; border-radius: var(--r-sm);
-  background: var(--s3); border: .5px solid var(--border);
-  font-size: 13px; color: var(--cream-dim); cursor: pointer;
-  transition: all .18s; font-family: var(--body);
+
+.hero-sub{
+  font-size:16.5px;font-weight:400;line-height:1.8;
+  color:var(--cream-2);max-width:580px;margin:0 auto 32px;
 }
-.room-pill:hover { border-color: var(--border-s); color: var(--cream); }
-.room-pill.active {
-  background: var(--gold-glow); border-color: var(--gold);
-  color: var(--gold); font-weight: 500;
+
+/* Trust strip */
+.trust-strip{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;flex-wrap:wrap;margin-bottom:36px;
 }
-.tier-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.tier-card {
-  padding: 14px 12px; border-radius: var(--r-sm);
-  background: var(--s3); border: .5px solid var(--border);
-  cursor: pointer; transition: all .18s; text-align: center;
+.trust-item{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--cream-3);
 }
-.tier-card:hover { border-color: var(--border-s); }
-.tier-card.active { background: var(--gold-glow); border-color: var(--gold); }
-.tier-name { font-size: 12px; font-weight: 600; color: var(--cream-dim); }
-.tier-range { font-size: 11px; color: var(--cream-muted); margin-top: 2px; }
-.tier-card.active .tier-name { color: var(--gold); }
-.generate-btn {
-  width: 100%; padding: 16px; margin-top: 8px;
-  font-size: 15px; font-weight: 600; border-radius: var(--r-md);
-  background: var(--gold); color: var(--ink);
-  border: none; cursor: pointer; font-family: var(--body);
-  letter-spacing: .02em;
-  transition: all .22s var(--ease-gold);
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+.trust-check{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--gold-glow);border:.5px solid var(--border-h);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;color:var(--gold-bright);flex-shrink:0;
 }
-.generate-btn:hover {
-  background: var(--gold-pale);
-  box-shadow: 0 8px 32px rgba(212,168,67,.3);
-  transform: translateY(-2px);
+.trust-sep{width:3px;height:3px;border-radius:50%;background:var(--cream-4)}
+
+.hero-cta{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;flex-wrap:wrap;margin-bottom:60px;
 }
-.generate-btn:active { transform: translateY(0); }
+
+/* Stats */
+.hero-stats{
+  display:flex;width:100%;max-width:580px;
+  border-top:.5px solid var(--border);
+  padding-top:36px;
+}
+.h-stat{
+  flex:1;text-align:center;
+  padding:0 20px;border-right:.5px solid var(--border);
+}
+.h-stat:last-child{border-right:none}
+.h-stat-n{
+  font-family:var(--serif);font-size:34px;font-weight:500;
+  color:var(--gold-bright);line-height:1;
+}
+.h-stat-l{
+  font-size:11px;color:var(--cream-3);margin-top:7px;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+
+/* Floating zone badges */
+.zone-badges{
+  position:absolute;inset:0;pointer-events:none;z-index:3;
+}
+.zbadge{
+  position:absolute;
+  display:flex;align-items:flex-start;gap:9px;
+  padding:10px 14px;border-radius:var(--r-sm);
+  background:rgba(15,14,12,.88);
+  border:.5px solid var(--border);
+  backdrop-filter:blur(14px);
+  animation:zbFloat var(--fd,.9s) var(--fd2,.3s) var(--ease) both;
+}
+@keyframes zbFloat{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.zbadge .zb-icon{
+  width:26px;height:26px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;flex-shrink:0;margin-top:1px;
+}
+.zbadge .zb-label{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.08em}
+.zbadge .zb-sub{font-size:11.5px;color:var(--cream-2);margin-top:2px}
+.zbadge .zb-chips{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.zbadge .zb-chip{
+  font-size:9.5px;padding:2px 7px;border-radius:99px;
+  background:rgba(255,255,255,.05);border:.5px solid var(--border);
+  color:var(--cream-3);
+}
+.zb-ne{top:20%;left:3%;--fd:.8s;--fd2:.3s}
+.zb-se{bottom:28%;left:2%;--fd:.8s;--fd2:.5s}
+.zb-sw{bottom:20%;right:2%;--fd:.8s;--fd2:.4s}
+.zb-nw{top:20%;right:2%;--fd:.8s;--fd2:.6s}
+@media(max-width:900px){.zone-badges{display:none}}
+
+/* Scroll hint */
+.scroll-hint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  z-index:2;opacity:.5;
+  animation:riseIn 1s .8s both;
+}
+.scroll-hint span{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream-3)}
+.scroll-arrow{
+  width:20px;height:20px;
+  border-right:.5px solid var(--cream-3);border-bottom:.5px solid var(--cream-3);
+  transform:rotate(45deg);
+  animation:scrollBounce 1.8s ease-in-out infinite;
+}
+@keyframes scrollBounce{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(5px)}}
+
+/* ════════════════════════════════════════════════════════════
+   BRAND STRIP
+════════════════════════════════════════════════════════════ */
+#brands{
+  padding:0;
+  background:var(--bg1);
+  border-top:.5px solid var(--border);
+  border-bottom:.5px solid var(--border);
+}
+.brands-track{
+  display:flex;align-items:center;
+  overflow:hidden;position:relative;
+  padding:20px 0;
+}
+.brands-track::before,.brands-track::after{
+  content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none;
+}
+.brands-track::before{left:0;background:linear-gradient(90deg,var(--bg1),transparent)}
+.brands-track::after{right:0;background:linear-gradient(-90deg,var(--bg1),transparent)}
+.brands-inner{
+  display:flex;align-items:center;gap:0;
+  animation:scrollBrands 22s linear infinite;
+  white-space:nowrap;flex-shrink:0;
+}
+.brands-inner:hover{animation-play-state:paused}
+@keyframes scrollBrands{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.brand-pill{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 32px;
+  border-right:.5px solid var(--border);
+  font-size:13px;font-weight:500;
+  color:var(--cream-3);letter-spacing:.04em;
+  transition:color .2s;flex-shrink:0;
+}
+.brand-pill:hover{color:var(--cream-2)}
+.brand-pill strong{color:var(--cream-2)}
+.brand-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.6;flex-shrink:0}
+
+/* ════════════════════════════════════════════════════════════
+   SECTION BASE
+════════════════════════════════════════════════════════════ */
+section{padding:108px 0}
+.sec-header{text-align:center;max-width:660px;margin:0 auto 68px}
+.sec-title{
+  font-family:var(--serif);
+  font-size:clamp(34px,4.5vw,56px);
+  font-weight:500;line-height:1.12;
+  letter-spacing:-.022em;color:var(--cream);
+  margin:14px 0 18px;
+}
+.sec-title em{font-style:italic;color:var(--gold-bright)}
+.sec-sub{font-size:15.5px;color:var(--cream-2);line-height:1.75}
+
+/* ════════════════════════════════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════════════════════════════════ */
+.reveal{
+  opacity:0;transform:translateY(28px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease);
+}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.18s}
+.reveal-d3{transition-delay:.26s}
+.reveal-d4{transition-delay:.34s}
+
+/* ════════════════════════════════════════════════════════════
+   FEATURES
+════════════════════════════════════════════════════════════ */
+#features{background:var(--bg1)}
+.features-wrap{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:.5px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;background:var(--border);gap:1px;
+}
+.feat-card{
+  background:var(--bg2);padding:48px 38px;
+  position:relative;overflow:hidden;
+  transition:background .3s;cursor:default;
+}
+/* Hover top line */
+.feat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1.5px;
+  background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%);
+  transform:scaleX(0);transform-origin:center;
+  transition:transform .4s var(--ease);
+}
+.feat-card:hover::before{transform:scaleX(1)}
+.feat-card:hover{background:var(--bg3)}
+
+/* Glow spot on hover */
+.feat-card::after{
+  content:'';position:absolute;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,var(--gold-glow) 0%,transparent 70%);
+  top:-60px;right:-60px;
+  transition:opacity .3s;opacity:0;
+}
+.feat-card:hover::after{opacity:1}
+
+.feat-num{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold-dim);margin-bottom:20px;
+}
+.feat-icon-wrap{
+  width:54px;height:54px;margin-bottom:26px;
+  border-radius:14px;background:var(--gold-glow);
+  border:.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  transition:transform .35s var(--ease-bounce),box-shadow .35s;
+}
+.feat-card:hover .feat-icon-wrap{
+  transform:scale(1.1) rotate(-3deg);
+  box-shadow:0 8px 24px rgba(201,148,58,.15);
+}
+.feat-title{
+  font-family:var(--serif);font-size:23px;font-weight:500;
+  color:var(--cream);margin-bottom:13px;line-height:1.25;
+}
+.feat-body{font-size:14px;color:var(--cream-2);line-height:1.75}
+.feat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
+.fchip{
+  font-size:11px;padding:4px 11px;border-radius:99px;
+  background:var(--bg4);border:.5px solid var(--border);
+  color:var(--cream-3);letter-spacing:.02em;
+}
+
+/* ════════════════════════════════════════════════════════════
+   BOQ GENERATOR
+════════════════════════════════════════════════════════════ */
+#boq{background:var(--bg0)}
+.boq-wrap{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:.5px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;background:var(--border);gap:1px;
+}
+.boq-left{background:var(--bg2);padding:52px}
+.boq-right{background:var(--bg1);padding:52px;position:relative;min-height:520px}
+
+.panel-label{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  color:var(--gold-bright);margin-bottom:30px;
+  display:flex;align-items:center;gap:10px;
+  text-transform:uppercase;
+}
+.panel-label::after{content:'';flex:1;height:.5px;background:var(--border)}
+
+/* Form fields */
+.field-group{margin-bottom:24px}
+.field-label{
+  display:block;font-size:11px;font-weight:600;
+  color:var(--cream-3);margin-bottom:9px;
+  text-transform:uppercase;letter-spacing:.09em;
+}
+.field-input,.field-select{
+  width:100%;padding:12px 16px;
+  background:var(--bg3);border:.5px solid var(--border);
+  border-radius:var(--r-sm);color:var(--cream);
+  font-family:var(--sans);font-size:14px;
+  outline:none;
+  transition:border-color .22s,box-shadow .22s,background .22s;
+  appearance:none;
+}
+.field-input::placeholder{color:var(--cream-4)}
+.field-input:focus,.field-select:focus{
+  border-color:var(--gold-dim);background:var(--bg4);
+  box-shadow:0 0 0 3px rgba(201,148,58,.1);
+}
+.field-select option{background:var(--bg3)}
+.select-wrap{position:relative}
+.select-wrap::after{
+  content:'▾';position:absolute;right:14px;top:50%;
+  transform:translateY(-50%);pointer-events:none;
+  color:var(--gold-dim);font-size:12px;
+}
+
+/* Room pills */
+.room-pills{display:flex;flex-wrap:wrap;gap:8px}
+.room-pill{
+  padding:8px 16px;border-radius:var(--r-xs);
+  background:var(--bg3);border:.5px solid var(--border);
+  font-size:13px;color:var(--cream-3);cursor:pointer;
+  transition:all .18s var(--ease);
+  font-family:var(--sans);
+}
+.room-pill:hover{border-color:var(--border-h);color:var(--cream-2)}
+.room-pill.active{
+  background:var(--gold-glow);border-color:var(--gold);
+  color:var(--gold-bright);font-weight:500;
+}
+
+/* Tier cards */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.tier-card{
+  padding:14px 12px;border-radius:var(--r-sm);
+  background:var(--bg3);border:.5px solid var(--border);
+  cursor:pointer;transition:all .2s var(--ease);text-align:center;
+}
+.tier-card:hover{border-color:var(--border-h);background:var(--bg4)}
+.tier-card.active{background:var(--gold-glow);border-color:var(--gold)}
+.tier-name{font-size:12.5px;font-weight:600;color:var(--cream-2)}
+.tier-range{font-size:10.5px;color:var(--cream-4);margin-top:3px}
+.tier-card.active .tier-name{color:var(--gold-bright)}
+
+/* Dimensions grid */
+.dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Generate button */
+.gen-btn{
+  width:100%;padding:17px;margin-top:8px;
+  font-size:15px;font-weight:600;border-radius:var(--r-md);
+  background:var(--gold);color:var(--bg0);
+  border:none;cursor:pointer;font-family:var(--sans);
+  letter-spacing:.03em;
+  transition:all .25s var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  position:relative;overflow:hidden;
+}
+.gen-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.15) 50%,transparent 60%);
+  transform:translateX(-100%);
+  transition:transform .5s;
+}
+.gen-btn:hover{
+  background:var(--gold-bright);
+  box-shadow:0 10px 40px rgba(201,148,58,.4);
+  transform:translateY(-2px);
+}
+.gen-btn:hover::before{transform:translateX(100%)}
+.gen-btn:active{transform:translateY(0)}
 
 /* BOQ Output */
-.boq-placeholder {
-  height: 100%; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; text-align: center;
-  gap: 16px; color: var(--cream-muted);
+.boq-placeholder{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;
+  color:var(--cream-4);padding:52px;text-align:center;
 }
-.boq-placeholder svg { opacity: .2; }
-.boq-output { display: none; animation: fadeUp .4s var(--ease-gold) both; }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.boq-header-out {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  margin-bottom: 24px; padding-bottom: 20px;
-  border-bottom: .5px solid var(--border);
-}
-.boq-room-title {
-  font-family: var(--display); font-size: 24px; font-weight: 500;
-  color: var(--cream); line-height: 1.2;
-}
-.boq-meta { font-size: 12px; color: var(--cream-muted); margin-top: 4px; }
-.vastu-badge {
-  padding: 6px 12px; border-radius: var(--r-sm);
-  background: var(--gold-glow); border: .5px solid var(--border-s);
-  font-size: 11px; font-weight: 600; color: var(--gold);
-  text-transform: uppercase; letter-spacing: .08em; white-space: nowrap;
-}
-.boq-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
-.boq-table th {
-  text-align: left; font-size: 10px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .1em; color: var(--cream-muted);
-  padding: 0 8px 10px; border-bottom: .5px solid var(--border);
-}
-.boq-table td { padding: 11px 8px; border-bottom: .5px solid rgba(212,168,67,.06); vertical-align: top; }
-.boq-table tr:last-child td { border-bottom: none; }
-.mat-name { font-weight: 500; color: var(--cream); }
-.mat-brand { font-size: 11px; color: var(--gold-dim); margin-top: 2px; }
-.mat-qty { color: var(--cream-dim); font-family: var(--mono); font-size: 12px; }
-.mat-cost { color: var(--cream); font-family: var(--mono); font-size: 12px; font-weight: 500; }
-.boq-total {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 16px; background: var(--gold-glow2);
-  border: .5px solid var(--border); border-radius: var(--r-sm);
-  margin-bottom: 16px;
-}
-.total-label { font-size: 13px; color: var(--cream-muted); }
-.total-val {
-  font-family: var(--display); font-size: 26px; font-weight: 500;
-  color: var(--gold);
-}
-.boq-actions { display: flex; gap: 10px; }
-.boq-btn {
-  flex: 1; padding: 11px; border-radius: var(--r-sm);
-  font-family: var(--body); font-size: 12px; font-weight: 500;
-  cursor: pointer; transition: all .2s;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.boq-btn-wa {
-  background: #1B5E20; border: .5px solid #2E7D32; color: #A5D6A7;
-}
-.boq-btn-wa:hover { background: #2E7D32; }
-.boq-btn-pdf {
-  background: var(--s4); border: .5px solid var(--border); color: var(--cream-dim);
-}
-.boq-btn-pdf:hover { border-color: var(--border-s); color: var(--cream); }
-
-/* ── VASTU ZONES ──────────────────────────────────────────── */
-#zones { background: var(--s1); }
-.zones-wrap {
-  display: grid; grid-template-columns: 1fr 480px; gap: 80px;
-  align-items: center;
-}
-.zones-left .section-header { text-align: left; margin: 0 0 32px; }
-.zone-list { display: flex; flex-direction: column; gap: 0; }
-.zone-item {
-  display: flex; gap: 16px; align-items: flex-start;
-  padding: 16px 0; border-bottom: .5px solid var(--border);
-  cursor: pointer; transition: all .2s;
-}
-.zone-item:first-child { border-top: .5px solid var(--border); }
-.zone-item:hover { padding-left: 8px; }
-.zone-dir {
-  font-family: var(--mono); font-size: 11px; font-weight: 500;
-  color: var(--gold-dim); letter-spacing: .1em;
-  min-width: 44px; padding-top: 2px;
-}
-.zone-name { font-weight: 500; font-size: 14px; color: var(--cream); }
-.zone-rule { font-size: 13px; color: var(--cream-dim); line-height: 1.5; }
-.zone-mats { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-.zone-chip {
-  font-size: 10px; padding: 3px 8px; border-radius: 99px;
-  background: var(--s4); border: .5px solid var(--border);
-  color: var(--cream-muted);
+.placeholder-icon{
+  width:64px;height:64px;opacity:.25;
+  border:1px solid currentColor;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
 }
 
-/* Compass Visual */
-.compass-container { display: flex; align-items: center; justify-content: center; }
-#compass-svg { width: 440px; height: 440px; max-width: 100%; }
+.boq-result{display:none;animation:fadeUp .45s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── HOW IT WORKS ─────────────────────────────────────────── */
-#how { background: var(--ink); }
-.steps-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 0; position: relative;
+.boq-result-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:24px;padding-bottom:20px;
+  border-bottom:.5px solid var(--border);
 }
-.steps-grid::before {
-  content: ''; position: absolute; top: 44px; left: 10%; right: 10%;
-  height: .5px; background: linear-gradient(90deg, transparent, var(--border-s), var(--border-s), var(--border-s), transparent);
+.boq-room-title{
+  font-family:var(--serif);font-size:26px;font-weight:500;
+  color:var(--cream);line-height:1.2;
 }
-.step-card { padding: 0 24px; text-align: center; position: relative; }
-.step-num {
-  width: 48px; height: 48px; border-radius: 50%;
-  background: var(--s2); border: .5px solid var(--border-s);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 14px; font-weight: 500;
-  color: var(--gold); margin: 0 auto 24px;
-  position: relative; z-index: 1;
-  transition: all .3s;
-}
-.step-card:hover .step-num {
-  background: var(--gold-glow); border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(212,168,67,.2);
-}
-.step-title { font-size: 15px; font-weight: 500; color: var(--cream); margin-bottom: 10px; }
-.step-body { font-size: 13px; color: var(--cream-dim); line-height: 1.6; }
-.step-time {
-  margin-top: 12px; font-family: var(--mono); font-size: 11px;
-  color: var(--gold-dim); letter-spacing: .06em;
+.boq-meta{font-size:12px;color:var(--cream-3);margin-top:5px}
+.vastu-badge{
+  padding:6px 13px;border-radius:var(--r-xs);
+  background:var(--gold-glow);border:.5px solid var(--border-h);
+  font-size:10.5px;font-weight:600;color:var(--gold-bright);
+  letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+  flex-shrink:0;margin-left:12px;
 }
 
-/* ── PRICING ──────────────────────────────────────────────── */
-#pricing { background: var(--s1); }
-.pricing-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1px; background: var(--border);
-  border: .5px solid var(--border); border-radius: var(--r-xl);
-  overflow: hidden;
+/* BOQ Table */
+.boq-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+.boq-table th{
+  text-align:left;font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--cream-4);
+  padding:0 8px 10px;border-bottom:.5px solid var(--border);
 }
-.price-card { background: var(--s2); padding: 44px 36px; position: relative; }
-.price-card.featured {
-  background: linear-gradient(160deg, var(--s3), var(--s2));
+.boq-table td{
+  padding:11px 8px;border-bottom:.5px solid rgba(201,148,58,.05);
+  vertical-align:top;
 }
-.price-card.featured::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-.price-popular {
-  position: absolute; top: 20px; right: 20px;
-  font-size: 10px; font-weight: 600; letter-spacing: .1em;
-  color: var(--ink); background: var(--gold);
-  padding: 4px 10px; border-radius: 99px;
-  text-transform: uppercase;
-}
-.price-tier { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--gold-dim); margin-bottom: 14px; text-transform: uppercase; }
-.price-name { font-family: var(--display); font-size: 26px; font-weight: 500; color: var(--cream); margin-bottom: 6px; }
-.price-desc { font-size: 13px; color: var(--cream-dim); margin-bottom: 28px; line-height: 1.5; }
-.price-amount {
-  display: flex; align-items: baseline; gap: 4px;
-  margin-bottom: 6px;
-}
-.price-curr { font-size: 18px; color: var(--cream-dim); font-weight: 300; }
-.price-val { font-family: var(--display); font-size: 52px; font-weight: 500; color: var(--cream); line-height: 1; }
-.price-val.gold { color: var(--gold); }
-.price-period { font-size: 13px; color: var(--cream-muted); }
-.price-note { font-size: 12px; color: var(--cream-muted); margin-bottom: 28px; }
-.price-divider { height: .5px; background: var(--border); margin-bottom: 24px; }
-.price-features { list-style: none; margin-bottom: 32px; }
-.price-features li {
-  display: flex; gap: 10px; font-size: 13px; color: var(--cream-dim);
-  padding: 7px 0; border-bottom: .5px solid rgba(212,168,67,.05);
-}
-.price-features li:last-child { border-bottom: none; }
-.feat-check { color: var(--gold); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-.feat-x { color: var(--cream-muted); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-.price-btn {
-  width: 100%; padding: 14px; border-radius: var(--r-md);
-  font-family: var(--body); font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all .22s var(--ease-gold);
-  letter-spacing: .02em; border: none;
-}
-.price-btn-outline {
-  background: transparent; border: .5px solid var(--border-s); color: var(--cream-dim);
-}
-.price-btn-outline:hover { border-color: var(--border-s); color: var(--cream); background: var(--s4); }
-.price-btn-filled {
-  background: var(--gold); color: var(--ink);
-}
-.price-btn-filled:hover { background: var(--gold-pale); box-shadow: 0 8px 24px rgba(212,168,67,.25); }
+.boq-table tr:last-child td{border-bottom:none}
+.boq-table tbody tr{transition:background .15s}
+.boq-table tbody tr:hover{background:rgba(201,148,58,.03)}
+.mat-name{font-weight:500;color:var(--cream);font-size:13px}
+.mat-brand{font-size:10.5px;color:var(--gold-dim);margin-top:2px}
+.mat-qty{color:var(--cream-2);font-family:var(--mono);font-size:12px}
+.mat-cost{color:var(--cream);font-family:var(--mono);font-size:12.5px;font-weight:500}
 
-/* ── SOCIAL PROOF ─────────────────────────────────────────── */
-#proof { background: var(--ink); }
-.stats-row {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 1px; background: var(--border);
-  border: .5px solid var(--border); border-radius: var(--r-xl);
-  overflow: hidden; margin-bottom: 64px;
+/* Total */
+.boq-total{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 18px;background:var(--gold-glow2);
+  border:.5px solid var(--border);border-radius:var(--r-sm);
+  margin-bottom:16px;
 }
-.stat-box { background: var(--s2); padding: 36px 32px; text-align: center; }
-.stat-n {
-  font-family: var(--display); font-size: 48px; font-weight: 500;
-  color: var(--gold); line-height: 1; margin-bottom: 8px;
-}
-.stat-l { font-size: 13px; color: var(--cream-dim); }
-.testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.testi-card {
-  background: var(--s2); border: .5px solid var(--border);
-  border-radius: var(--r-lg); padding: 28px;
-  transition: border-color .2s, transform .2s;
-}
-.testi-card:hover { border-color: var(--border-s); transform: translateY(-3px); }
-.testi-stars { color: var(--gold); font-size: 14px; margin-bottom: 14px; letter-spacing: 2px; }
-.testi-text { font-size: 14px; color: var(--cream-dim); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
-.testi-author { display: flex; align-items: center; gap: 12px; }
-.testi-avatar {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--gold-glow); border: .5px solid var(--border-s);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--display); font-size: 15px; font-weight: 500; color: var(--gold);
-}
-.testi-name { font-size: 13px; font-weight: 500; color: var(--cream); }
-.testi-role { font-size: 12px; color: var(--cream-muted); }
-
-/* ── CTA BANNER ──────────────────────────────────────────── */
-#cta-banner {
-  padding: 80px 0; background: var(--s1);
-  border-top: .5px solid var(--border);
-  border-bottom: .5px solid var(--border);
-  position: relative; overflow: hidden;
-}
-#cta-banner::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 100% at 50% 100%, rgba(212,168,67,.06) 0%, transparent 70%);
-}
-.cta-inner { text-align: center; position: relative; z-index: 2; }
-.cta-title {
-  font-family: var(--display); font-size: clamp(36px, 5vw, 60px);
-  font-weight: 500; line-height: 1.1; letter-spacing: -.02em;
-  color: var(--cream); margin-bottom: 16px;
-}
-.cta-title em { font-style: italic; color: var(--gold); }
-.cta-sub { font-size: 16px; color: var(--cream-dim); margin-bottom: 40px; }
-.cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-.btn-wa {
-  background: #1B5E20; border: .5px solid #2E7D32; color: #A5D6A7;
-  padding: 14px 28px; font-size: 14px; border-radius: var(--r-md);
-}
-.btn-wa:hover { background: #2E7D32; transform: translateY(-2px); }
-
-/* ── FOOTER ──────────────────────────────────────────────── */
-footer {
-  background: var(--s1); border-top: .5px solid var(--border);
-  padding: 60px 0 32px;
-}
-.footer-grid {
-  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 48px; margin-bottom: 48px;
-}
-.footer-brand p { font-size: 13px; color: var(--cream-muted); line-height: 1.7; margin-top: 14px; max-width: 260px; }
-.footer-col-title {
-  font-size: 11px; font-weight: 600; letter-spacing: .1em;
-  text-transform: uppercase; color: var(--cream-dim); margin-bottom: 16px;
-}
-.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.footer-links a { font-size: 13px; color: var(--cream-muted); transition: color .2s; }
-.footer-links a:hover { color: var(--cream-dim); }
-.footer-bottom {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-top: 28px; border-top: .5px solid var(--border);
-  flex-wrap: wrap; gap: 12px;
-}
-.footer-copy { font-size: 12px; color: var(--cream-muted); }
-.footer-legal { display: flex; gap: 20px; }
-.footer-legal a { font-size: 12px; color: var(--cream-muted); transition: color .2s; }
-.footer-legal a:hover { color: var(--cream-dim); }
-
-/* ── SCROLL ANIMATION ────────────────────────────────────── */
-.reveal {
-  opacity: 0; transform: translateY(24px);
-  transition: opacity .6s var(--ease-gold), transform .6s var(--ease-gold);
-}
-.reveal.visible { opacity: 1; transform: translateY(0); }
-.reveal-d1 { transition-delay: .1s; }
-.reveal-d2 { transition-delay: .2s; }
-.reveal-d3 { transition-delay: .3s; }
-.reveal-d4 { transition-delay: .4s; }
-
-/* ── MOBILE NAV DRAWER ───────────────────────────────────── */
-.nav-drawer {
-  display: none; position: fixed;
-  top: 64px; left: 0; right: 0; bottom: 0;
-  background: rgba(12,11,10,.97); z-index: 99;
-  backdrop-filter: blur(20px);
-  padding: 32px 24px; flex-direction: column; gap: 8px;
-}
-.nav-drawer.open { display: flex; }
-.nav-drawer a {
-  font-size: 16px; color: var(--cream-dim); padding: 12px 0;
-  border-bottom: .5px solid var(--border);
-  transition: color .2s;
-}
-.nav-drawer a:hover { color: var(--cream); }
-
-/* ── RESPONSIVE ──────────────────────────────────────────── */
-@media (max-width: 1024px) {
-  #hero { grid-template-columns: 1fr; }
-  .hero-left { padding: 60px 0 0; }
-  .hero-right { display: none; }
-  .hero-stats { gap: 24px; }
-  .boq-wrap { grid-template-columns: 1fr; }
-  .zones-wrap { grid-template-columns: 1fr; }
-  .compass-container { display: none; }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 768px) {
-  .nav-links, .btn-ghost { display: none; }
-  .hamburger { display: flex; }
-  section { padding: 64px 0; }
-  #hero { padding: 80px 0 48px; }
-  .hero-left { padding: 32px 0 0; }
-  .features-grid, .pricing-grid { grid-template-columns: 1fr; }
-  .steps-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-  .steps-grid::before { display: none; }
-  .stats-row { grid-template-columns: 1fr 1fr; }
-  .testimonials { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; }
-  .footer-bottom { flex-direction: column; align-items: flex-start; }
-}
-@media (max-width: 480px) {
-  .steps-grid { grid-template-columns: 1fr; }
-  .stats-row { grid-template-columns: 1fr 1fr; }
-  .brands-inner { flex-direction: column; gap: 0; }
-  .brand-item { border-right: none; border-bottom: .5px solid var(--border); width: 100%; justify-content: center; }
+.total-label{font-size:13px;color:var(--cream-3)}
+.total-sub{font-size:11px;color:var(--cream-4);margin-top:3px}
+.total-val{
+  font-family:var(--serif);font-size:30px;font-weight:500;
+  color:var(--gold-bright);
 }
 
-/* ── LOADING SHIMMER (BOQ) ───────────────────────────────── */
-.shimmer {
-  background: linear-gradient(90deg, var(--s3) 25%, var(--s4) 50%, var(--s3) 75%);
-  background-size: 200% 100%;
-  animation: shimmer .8s infinite;
-  border-radius: 4px;
+/* Action buttons */
+.boq-actions{display:flex;gap:10px}
+.act-btn{
+  flex:1;padding:12px;border-radius:var(--r-sm);
+  font-family:var(--sans);font-size:12.5px;font-weight:500;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  border:none;
 }
-@keyframes shimmer { to { background-position: -200% 0; } }
-.shimmer-row { height: 14px; margin: 8px 0; }
+.act-wa{background:#1A3E1C;border:.5px solid #2D6B30;color:#72C97A}
+.act-wa:hover{background:#235626}
+.act-pdf{background:var(--bg4);border:.5px solid var(--border);color:var(--cream-2)}
+.act-pdf:hover{border-color:var(--border-h);color:var(--cream)}
 
-/* Counter animation */
-.count-up { display: inline-block; }
+/* Loading shimmer */
+.shimmer-wrap{display:none}
+.shimmer-bar{
+  height:14px;border-radius:4px;margin:9px 0;
+  background:linear-gradient(90deg,var(--bg3) 0%,var(--bg4) 50%,var(--bg3) 100%);
+  background-size:200% 100%;
+  animation:shimAnim .9s ease-in-out infinite;
+}
+@keyframes shimAnim{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* ════════════════════════════════════════════════════════════
+   HOW IT WORKS
+════════════════════════════════════════════════════════════ */
+#how{background:var(--bg0)}
+.steps-wrap{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  position:relative;gap:0;
+}
+/* Connector line */
+.steps-wrap::before{
+  content:'';position:absolute;top:44px;left:12%;right:12%;
+  height:.5px;
+  background:linear-gradient(90deg,transparent,var(--border-h) 20%,var(--border-h) 80%,transparent);
+  pointer-events:none;
+}
+.step-card{padding:0 24px;text-align:center;cursor:default}
+.step-num-wrap{
+  width:88px;height:88px;margin:0 auto 28px;
+  position:relative;z-index:1;
+}
+.step-num-bg{
+  position:absolute;inset:0;border-radius:50%;
+  background:var(--bg2);border:.5px solid var(--border-h);
+  transition:all .35s var(--ease);
+}
+.step-num{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:20px;font-weight:500;color:var(--gold-bright);
+  transition:transform .35s var(--ease);
+}
+.step-card:hover .step-num-bg{
+  background:var(--gold-glow);border-color:var(--gold-bright);
+  box-shadow:0 0 32px rgba(201,148,58,.2);
+}
+.step-card:hover .step-num{transform:scale(1.1)}
+.step-icon{
+  font-size:28px;display:block;margin-bottom:4px;
+  transition:transform .35s var(--ease-bounce);
+}
+.step-card:hover .step-icon{transform:scale(1.2)}
+.step-title{font-size:15.5px;font-weight:500;color:var(--cream);margin-bottom:10px}
+.step-body{font-size:13.5px;color:var(--cream-2);line-height:1.65}
+.step-time{
+  display:inline-block;margin-top:14px;
+  font-family:var(--mono);font-size:11px;
+  color:var(--gold-dim);letter-spacing:.06em;
+  background:var(--gold-glow);padding:3px 10px;border-radius:99px;
+  border:.5px solid var(--border);
+}
+
+/* ════════════════════════════════════════════════════════════
+   VASTU ZONES
+════════════════════════════════════════════════════════════ */
+#zones{background:var(--bg1)}
+.zones-layout{
+  display:grid;grid-template-columns:1fr 480px;
+  gap:80px;align-items:center;
+}
+.zones-text .sec-header{text-align:left;margin-left:0;margin-bottom:32px}
+.zone-list{list-style:none}
+.zone-item{
+  display:flex;gap:16px;align-items:flex-start;
+  padding:18px 0;border-bottom:.5px solid var(--border);
+  cursor:pointer;transition:padding-left .2s var(--ease);
+}
+.zone-item:first-child{border-top:.5px solid var(--border)}
+.zone-item:hover{padding-left:8px}
+.zone-dir{
+  font-family:var(--mono);font-size:11px;font-weight:500;
+  color:var(--gold-dim);letter-spacing:.1em;
+  min-width:42px;padding-top:2px;flex-shrink:0;
+}
+.zone-name{font-size:14.5px;font-weight:500;color:var(--cream)}
+.zone-desc{font-size:13px;color:var(--cream-2);line-height:1.6;margin-top:3px}
+.zone-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.ztag{
+  font-size:10px;padding:3px 8px;border-radius:99px;
+  background:var(--bg4);border:.5px solid var(--border);
+  color:var(--cream-3);
+}
+
+/* Compass SVG container */
+.compass-visual{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.compass-glow{
+  position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,148,58,.08) 0%,transparent 70%);
+  animation:pulseGlow 5s ease-in-out infinite;
+}
+@keyframes pulseGlow{0%,100%{opacity:.6;transform:scale(.96)}50%{opacity:1;transform:scale(1.02)}}
+
+/* ════════════════════════════════════════════════════════════
+   PRICING
+════════════════════════════════════════════════════════════ */
+#pricing{background:var(--bg0)}
+.pricing-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:.5px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;background:var(--border);gap:1px;
+}
+.price-card{
+  background:var(--bg2);padding:46px 38px;
+  position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.price-card.popular{background:linear-gradient(165deg,var(--bg3),var(--bg2))}
+.price-card.popular::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold-bright),transparent);
+}
+.pop-badge{
+  position:absolute;top:22px;right:22px;
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--gold);color:var(--bg0);
+  padding:4px 11px;border-radius:99px;
+}
+.price-tier{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  color:var(--gold-dim);margin-bottom:14px;text-transform:uppercase;
+}
+.price-name{
+  font-family:var(--serif);font-size:28px;font-weight:500;
+  color:var(--cream);margin-bottom:8px;
+}
+.price-desc{font-size:13px;color:var(--cream-2);margin-bottom:28px;line-height:1.6}
+.price-amount{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
+.price-curr{font-size:19px;color:var(--cream-2);font-weight:300}
+.price-val{
+  font-family:var(--serif);font-size:54px;font-weight:500;
+  color:var(--cream);line-height:1;
+}
+.price-val.highlight{color:var(--gold-bright)}
+.price-cycle{font-size:13px;color:var(--cream-3)}
+.price-note{font-size:12px;color:var(--cream-3);margin-bottom:28px}
+.price-div{height:.5px;background:var(--border);margin-bottom:24px}
+.price-feats{list-style:none;margin-bottom:32px}
+.price-feats li{
+  display:flex;gap:10px;font-size:13.5px;color:var(--cream-2);
+  padding:7px 0;border-bottom:.5px solid rgba(201,148,58,.05);
+}
+.price-feats li:last-child{border-bottom:none}
+.pf-check{color:var(--gold-bright);font-size:14px;flex-shrink:0;margin-top:2px}
+.pf-no{color:var(--cream-4);font-size:14px;flex-shrink:0;margin-top:2px}
+.price-cta{
+  width:100%;padding:14px;border-radius:var(--r-md);
+  font-family:var(--sans);font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .24s var(--ease);
+  letter-spacing:.02em;border:none;
+}
+.pcta-outline{
+  background:transparent;border:.5px solid var(--border-h);
+  color:var(--cream-2);
+}
+.pcta-outline:hover{background:var(--bg4);color:var(--cream);border-color:var(--border-h)}
+.pcta-solid{background:var(--gold);color:var(--bg0)}
+.pcta-solid:hover{background:var(--gold-bright);box-shadow:0 8px 28px rgba(201,148,58,.3)}
+
+/* ════════════════════════════════════════════════════════════
+   SOCIAL PROOF
+════════════════════════════════════════════════════════════ */
+#proof{background:var(--bg1)}
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:.5px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;background:var(--border);gap:1px;
+  margin-bottom:64px;
+}
+.stat-box{
+  background:var(--bg2);padding:38px 32px;text-align:center;
+  transition:background .3s;
+}
+.stat-box:hover{background:var(--bg3)}
+.stat-n{
+  font-family:var(--serif);font-size:50px;font-weight:500;
+  color:var(--gold-bright);line-height:1;margin-bottom:9px;
+}
+.stat-l{font-size:13px;color:var(--cream-2)}
+
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.review-card{
+  background:var(--bg2);border:.5px solid var(--border);
+  border-radius:var(--r-lg);padding:30px;
+  transition:border-color .25s,transform .25s,box-shadow .25s;
+}
+.review-card:hover{
+  border-color:var(--border-h);transform:translateY(-4px);
+  box-shadow:0 20px 40px rgba(0,0,0,.3);
+}
+.rev-stars{color:var(--gold-bright);font-size:14px;letter-spacing:3px;margin-bottom:14px}
+.rev-text{font-size:14px;color:var(--cream-2);line-height:1.75;margin-bottom:22px;font-style:italic}
+.rev-author{display:flex;align-items:center;gap:12px}
+.rev-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--gold-glow);border:.5px solid var(--border-h);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:16px;font-weight:500;color:var(--gold-bright);
+  flex-shrink:0;
+}
+.rev-name{font-size:13.5px;font-weight:500;color:var(--cream)}
+.rev-role{font-size:11.5px;color:var(--cream-3)}
+
+/* ════════════════════════════════════════════════════════════
+   CTA BANNER
+════════════════════════════════════════════════════════════ */
+#cta{
+  padding:90px 0;background:var(--bg2);
+  border-top:.5px solid var(--border);border-bottom:.5px solid var(--border);
+  position:relative;overflow:hidden;
+}
+#cta::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 90% at 50% 110%,rgba(201,148,58,.07) 0%,transparent 70%);
+}
+.cta-body{text-align:center;position:relative;z-index:2}
+.cta-h2{
+  font-family:var(--serif);font-size:clamp(38px,5.5vw,66px);
+  font-weight:500;line-height:1.1;letter-spacing:-.022em;
+  color:var(--cream);margin-bottom:16px;
+}
+.cta-h2 em{font-style:italic;color:var(--gold-bright)}
+.cta-sub{font-size:16px;color:var(--cream-2);margin-bottom:42px}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+/* ════════════════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════════════════ */
+footer{
+  background:var(--bg1);border-top:.5px solid var(--border);
+  padding:64px 0 32px;
+}
+.footer-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:48px;margin-bottom:48px;
+}
+.footer-about p{font-size:13px;color:var(--cream-3);line-height:1.75;margin-top:16px;max-width:260px}
+.footer-hl{
+  font-size:10.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--cream-2);margin-bottom:18px;
+}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:11px}
+.footer-links a{font-size:13px;color:var(--cream-3);transition:color .2s}
+.footer-links a:hover{color:var(--cream-2)}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:28px;border-top:.5px solid var(--border);
+  flex-wrap:wrap;gap:12px;
+}
+.footer-copy{font-size:12px;color:var(--cream-4)}
+.footer-legal{display:flex;gap:20px}
+.footer-legal a{font-size:12px;color:var(--cream-4);transition:color .2s}
+.footer-legal a:hover{color:var(--cream-3)}
+
+/* ════════════════════════════════════════════════════════════
+   TOAST NOTIFICATION
+════════════════════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);
+  z-index:9998;
+  background:var(--bg4);border:.5px solid var(--border-h);
+  border-radius:var(--r-sm);padding:12px 22px;
+  font-size:13.5px;color:var(--cream);
+  box-shadow:0 16px 40px rgba(0,0,0,.5);
+  transition:transform .35s var(--ease-bounce),opacity .35s;
+  opacity:0;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .zones-layout{grid-template-columns:1fr;gap:48px}
+  .compass-visual{display:none}
+}
+@media(max-width:960px){
+  .boq-wrap{grid-template-columns:1fr}
+  .boq-right{min-height:auto}
+  .features-wrap{grid-template-columns:1fr}
+  .pricing-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .nav-links,.btn-ghost{display:none}
+  .hamburger{display:flex}
+  section{padding:72px 0}
+  .container{padding:0 20px}
+  .steps-wrap{grid-template-columns:1fr 1fr;gap:36px}
+  .steps-wrap::before{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .reviews-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .hero-stats{max-width:100%}
+  .hero-cta{flex-direction:column;width:100%}
+  .hero-cta .btn{width:100%}
+  .boq-left,.boq-right{padding:32px 24px}
+}
+@media(max-width:540px){
+  .steps-wrap{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;align-items:flex-start}
+  .h-stat{padding:0 12px}
+  .h-stat-n{font-size:26px}
+}
 </style>
 </head>
 <body>
 
-<!-- ── NAVIGATION ─────────────────────────────────────────── -->
-<nav id="main-nav">
+<!-- ══════════════ NAVIGATION ══════════════ -->
+<nav id="nav">
   <div class="nav-inner">
     <a href="#" class="logo">
-      <div class="logo-mark">
-        <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1" y="1" width="32" height="32" rx="8" stroke="#D4A843" stroke-width=".8"/>
-          <path d="M17 5 L17 29 M5 17 L29 17" stroke="#D4A843" stroke-width=".6" opacity=".4"/>
-          <circle cx="17" cy="17" r="8" stroke="#D4A843" stroke-width=".8"/>
-          <circle cx="17" cy="17" r="3" fill="#D4A843" opacity=".8"/>
-          <path d="M17 9 L19 17 L17 25 L15 17 Z" fill="#D4A843" opacity=".25"/>
-          <circle cx="17" cy="9" r="1.5" fill="#D4A843"/>
-          <circle cx="25" cy="17" r="1" fill="#D4A843" opacity=".5"/>
-          <circle cx="9" cy="17" r="1" fill="#D4A843" opacity=".5"/>
+      <div class="logo-icon">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="34" height="34" rx="9" stroke="#C9943A" stroke-width=".8"/>
+          <line x1="18" y1="4" x2="18" y2="32" stroke="#C9943A" stroke-width=".6" opacity=".35"/>
+          <line x1="4" y1="18" x2="32" y2="18" stroke="#C9943A" stroke-width=".6" opacity=".35"/>
+          <circle cx="18" cy="18" r="9" stroke="#C9943A" stroke-width=".9"/>
+          <circle cx="18" cy="18" r="3.5" fill="#C9943A" opacity=".9"/>
+          <path d="M18 9 L20 18 L18 27 L16 18 Z" fill="#C9943A" opacity=".22"/>
+          <circle cx="18" cy="9" r="1.8" fill="#C9943A"/>
+          <circle cx="27" cy="18" r="1.2" fill="#C9943A" opacity=".5"/>
+          <circle cx="9" cy="18" r="1.2" fill="#C9943A" opacity=".5"/>
+          <circle cx="27" cy="9" r="1" fill="#C9943A" opacity=".3"/>
+          <circle cx="9" cy="9" r="1" fill="#C9943A" opacity=".3"/>
         </svg>
       </div>
-      Vastu<span>·</span>Procure <span>AI</span>
+      <span class="logo-text">Vastu<em>·</em>Procure <em>AI</em></span>
     </a>
 
-    <div class="nav-links">
+    <nav class="nav-links">
       <a href="#features">Features</a>
       <a href="#boq">BOQ Generator</a>
       <a href="#zones">Vastu Zones</a>
       <a href="#pricing">Pricing</a>
       <a href="#proof">Reviews</a>
-    </div>
+    </nav>
 
-    <div class="nav-cta">
-      <button class="btn btn-ghost" onclick="document.getElementById('boq').scrollIntoView({behavior:'smooth'})">View Demo</button>
-      <button class="btn btn-gold" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Get Started →</button>
-      <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="scrollTo('boq')">Live Demo</button>
+      <button class="btn btn-primary" onclick="scrollTo('pricing')">Get Started →</button>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
         <span></span><span></span><span></span>
-      </div>
+      </button>
     </div>
   </div>
 </nav>
 
-<!-- Mobile Drawer -->
-<div class="nav-drawer" id="nav-drawer">
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
   <a href="#features" onclick="toggleMenu()">Features</a>
   <a href="#boq" onclick="toggleMenu()">BOQ Generator</a>
   <a href="#zones" onclick="toggleMenu()">Vastu Zones</a>
   <a href="#pricing" onclick="toggleMenu()">Pricing</a>
   <a href="#proof" onclick="toggleMenu()">Reviews</a>
-  <div style="margin-top:16px;display:flex;gap:10px;flex-direction:column">
-    <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="toggleMenu()">View Demo</button>
-    <button class="btn btn-gold" style="width:100%;justify-content:center" onclick="toggleMenu()">Get Started →</button>
+  <div class="menu-btns">
+    <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="toggleMenu()">Live Demo</button>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="toggleMenu()">Get Started →</button>
   </div>
 </div>
 
-<!-- ── HERO ─────────────────────────────────────────────────── -->
+<!-- ══════════════ HERO ══════════════ -->
 <section id="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-grid-lines"></div>
+  <div class="hero-atmosphere"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-ring ring-a"></div>
+  <div class="hero-ring ring-b"></div>
 
-  <div class="container" style="display:grid;grid-template-columns:1fr 1fr;align-items:center;width:100%;max-width:1200px;padding:0 24px">
-    <div class="hero-left">
-      <div class="hero-eyebrow">
-        <span class="tag">India's First Vastu-Intelligent BOQ Platform</span>
-      </div>
-      <h1 class="hero-headline">
-        Design homes<br>
-        that <em>honour</em><br>
-        ancient wisdom
-      </h1>
-      <p class="hero-sub">
-        Generate Vastu-compliant interior material lists, get 2026 India pricing from trusted brands, and connect with verified vendors — all in under 3 minutes.
-      </p>
-      <div class="hero-actions">
-        <button class="btn btn-gold btn-hero" onclick="document.getElementById('boq').scrollIntoView({behavior:'smooth'})">
-          Generate Your BOQ Free →
-        </button>
-        <button class="btn btn-ghost btn-hero" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">
-          See How It Works
-        </button>
-      </div>
-      <div class="hero-stats">
-        <div>
-          <div class="h-stat-n" id="stat1">0</div>
-          <div class="h-stat-l">BOQs Generated</div>
-        </div>
-        <div>
-          <div class="h-stat-n" id="stat2">0</div>
-          <div class="h-stat-l">Cities Covered</div>
-        </div>
-        <div>
-          <div class="h-stat-n" id="stat3">0</div>
-          <div class="h-stat-l">Designer Partners</div>
+  <!-- Dot field -->
+  <div class="hero-dots" id="heroDots"></div>
+
+  <!-- Compass watermark -->
+  <svg class="compass-bg" viewBox="0 0 360 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="180" y1="0" x2="180" y2="360" stroke="#C9943A" stroke-width="1.5"/>
+    <line x1="0" y1="180" x2="360" y2="180" stroke="#C9943A" stroke-width="1.5"/>
+    <line x1="52" y1="52" x2="308" y2="308" stroke="#C9943A" stroke-width=".8"/>
+    <line x1="308" y1="52" x2="52" y2="308" stroke="#C9943A" stroke-width=".8"/>
+    <circle cx="180" cy="180" r="172" stroke="#C9943A" stroke-width="1.5"/>
+    <circle cx="180" cy="180" r="135" stroke="#C9943A" stroke-width=".8"/>
+    <circle cx="180" cy="180" r="95" stroke="#C9943A" stroke-width=".8"/>
+    <circle cx="180" cy="180" r="56" stroke="#C9943A" stroke-width="1"/>
+    <circle cx="180" cy="180" r="22" stroke="#C9943A" stroke-width="1.5"/>
+    <circle cx="180" cy="180" r="6" fill="#C9943A"/>
+    <polygon points="180,8 174,36 180,28 186,36" fill="#C9943A"/>
+    <polygon points="180,352 174,324 180,332 186,324" fill="#C9943A"/>
+    <polygon points="8,180 36,174 28,180 36,186" fill="#C9943A"/>
+    <polygon points="352,180 324,174 332,180 324,186" fill="#C9943A"/>
+    <text x="180" y="5" text-anchor="middle" fill="#C9943A" font-size="14" font-family="DM Mono,monospace" letter-spacing=".12em">N</text>
+    <text x="355" y="184" text-anchor="middle" fill="#C9943A" font-size="14" font-family="DM Mono,monospace" letter-spacing=".12em">E</text>
+    <text x="180" y="358" text-anchor="middle" fill="#C9943A" font-size="14" font-family="DM Mono,monospace" letter-spacing=".12em">S</text>
+    <text x="5" y="184" text-anchor="middle" fill="#C9943A" font-size="14" font-family="DM Mono,monospace" letter-spacing=".12em">W</text>
+    <text x="312" y="56" text-anchor="middle" fill="#C9943A" font-size="10" font-family="DM Mono,monospace">NE</text>
+    <text x="312" y="312" text-anchor="middle" fill="#C9943A" font-size="10" font-family="DM Mono,monospace">SE</text>
+    <text x="48" y="312" text-anchor="middle" fill="#C9943A" font-size="10" font-family="DM Mono,monospace">SW</text>
+    <text x="48" y="56" text-anchor="middle" fill="#C9943A" font-size="10" font-family="DM Mono,monospace">NW</text>
+  </svg>
+
+  <!-- Floating zone badges -->
+  <div class="zone-badges">
+    <div class="zbadge zb-ne" style="--fd:.8s;--fd2:.3s">
+      <div class="zb-icon" style="background:rgba(31,191,170,.15)">💧</div>
+      <div>
+        <div class="zb-label" style="color:var(--teal)">NE · ISHANYA</div>
+        <div class="zb-sub">Pooja Room · Water</div>
+        <div class="zb-chips">
+          <span class="zb-chip">Royale Shyne White</span>
+          <span class="zb-chip">Pietra Ocre Matt</span>
         </div>
       </div>
     </div>
-
-    <div class="hero-right">
-      <div class="mandala-wrap">
-        <div class="mandala-glow"></div>
-        <div class="mandala-ring-1"></div>
-        <div class="mandala-ring-2"></div>
-        <div class="mandala-ring-3"></div>
-
-        <!-- Animated Vastu Compass -->
-        <svg id="vastu-compass" viewBox="0 0 360 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#1B1915"/>
-              <stop offset="100%" stop-color="#0C0B0A"/>
-            </radialGradient>
-          </defs>
-
-          <!-- Background -->
-          <circle cx="180" cy="180" r="170" fill="url(#bg-grad)" stroke="rgba(212,168,67,.15)" stroke-width=".8"/>
-
-          <!-- Grid lines -->
-          <line x1="180" y1="20" x2="180" y2="340" stroke="rgba(212,168,67,.08)" stroke-width=".5"/>
-          <line x1="20" y1="180" x2="340" y2="180" stroke="rgba(212,168,67,.08)" stroke-width=".5"/>
-          <line x1="60" y1="60" x2="300" y2="300" stroke="rgba(212,168,67,.06)" stroke-width=".5"/>
-          <line x1="300" y1="60" x2="60" y2="300" stroke="rgba(212,168,67,.06)" stroke-width=".5"/>
-
-          <!-- Rings -->
-          <circle cx="180" cy="180" r="150" stroke="rgba(212,168,67,.1)" stroke-width=".5"/>
-          <circle cx="180" cy="180" r="110" stroke="rgba(212,168,67,.12)" stroke-width=".5"/>
-          <circle cx="180" cy="180" r="70" stroke="rgba(212,168,67,.18)" stroke-width=".8"/>
-          <circle cx="180" cy="180" r="38" stroke="rgba(212,168,67,.3)" stroke-width=".8"/>
-
-          <!-- Center dot -->
-          <circle cx="180" cy="180" r="5" fill="#D4A843"/>
-          <circle cx="180" cy="180" r="12" fill="none" stroke="#D4A843" stroke-width=".5" opacity=".4"/>
-
-          <!-- North marker (North = top = South in Vastu) -->
-          <!-- N -->
-          <polygon points="180,30 174,50 180,44 186,50" fill="#D4A843" opacity=".9"/>
-          <text x="180" y="22" text-anchor="middle" fill="#D4A843" font-size="9" font-family="DM Mono,monospace" opacity=".6" letter-spacing=".08em">N</text>
-          <!-- S -->
-          <polygon points="180,330 174,310 180,316 186,310" fill="rgba(212,168,67,.4)"/>
-          <text x="180" y="348" text-anchor="middle" fill="rgba(212,168,67,.5)" font-size="9" font-family="DM Mono,monospace" letter-spacing=".08em">S</text>
-          <!-- E -->
-          <text x="348" y="184" text-anchor="middle" fill="rgba(212,168,67,.5)" font-size="9" font-family="DM Mono,monospace" letter-spacing=".08em">E</text>
-          <!-- W -->
-          <text x="12" y="184" text-anchor="middle" fill="rgba(212,168,67,.5)" font-size="9" font-family="DM Mono,monospace" letter-spacing=".08em">W</text>
-
-          <!-- Zone segments (8 directions) -->
-          <!-- NE - Ishanya - Teal -->
-          <path d="M180 180 L253 107 A110 110 0 0 0 180 70 Z" fill="rgba(42,191,170,.12)" stroke="rgba(42,191,170,.2)" stroke-width=".5"/>
-          <text x="228" y="115" text-anchor="middle" fill="rgba(42,191,170,.7)" font-size="8" font-family="DM Mono,monospace">NE</text>
-          <text x="228" y="126" text-anchor="middle" fill="rgba(42,191,170,.5)" font-size="7" font-family="DM Sans,sans-serif">Ishanya</text>
-
-          <!-- SE - Agni - Fire -->
-          <path d="M180 180 L290 253 A110 110 0 0 0 253 107 Z" fill="rgba(232,93,48,.1)" stroke="rgba(232,93,48,.18)" stroke-width=".5"/>
-          <text x="255" y="195" text-anchor="middle" fill="rgba(232,93,48,.7)" font-size="8" font-family="DM Mono,monospace">SE</text>
-          <text x="255" y="206" text-anchor="middle" fill="rgba(232,93,48,.5)" font-size="7" font-family="DM Sans,sans-serif">Agni</text>
-
-          <!-- SW - Nairutya - Gold -->
-          <path d="M180 180 L107 253 A110 110 0 0 0 290 253 Z" fill="rgba(212,168,67,.1)" stroke="rgba(212,168,67,.18)" stroke-width=".5"/>
-          <text x="196" y="268" text-anchor="middle" fill="rgba(212,168,67,.7)" font-size="8" font-family="DM Mono,monospace">SW</text>
-          <text x="196" y="279" text-anchor="middle" fill="rgba(212,168,67,.5)" font-size="7" font-family="DM Sans,sans-serif">Nairutya</text>
-
-          <!-- NW - Vayu -->
-          <path d="M180 180 L70 107 A110 110 0 0 0 107 253 Z" fill="rgba(130,160,210,.08)" stroke="rgba(130,160,210,.15)" stroke-width=".5"/>
-          <text x="112" y="180" text-anchor="middle" fill="rgba(130,160,210,.6)" font-size="8" font-family="DM Mono,monospace">NW</text>
-          <text x="112" y="191" text-anchor="middle" fill="rgba(130,160,210,.4)" font-size="7" font-family="DM Sans,sans-serif">Vayu</text>
-
-          <!-- Center label -->
-          <text x="180" y="176" text-anchor="middle" fill="rgba(212,168,67,.6)" font-size="8" font-family="DM Mono,monospace" letter-spacing=".1em">BRAHMASTHAN</text>
-          <text x="180" y="188" text-anchor="middle" fill="rgba(212,168,67,.35)" font-size="6" font-family="DM Sans,sans-serif">Sacred Centre</text>
-
-          <!-- Decorative dots at cardinal intersections -->
-          <circle cx="180" cy="70" r="3" fill="#D4A843" opacity=".7"/>
-          <circle cx="290" cy="180" r="2.5" fill="#D4A843" opacity=".4"/>
-          <circle cx="180" cy="290" r="2.5" fill="#D4A843" opacity=".4"/>
-          <circle cx="70" cy="180" r="2.5" fill="#D4A843" opacity=".4"/>
-          <!-- Diagonal dots -->
-          <circle cx="253" cy="107" r="2" fill="rgba(42,191,170,.6)"/>
-          <circle cx="253" cy="253" r="2" fill="rgba(232,93,48,.6)"/>
-          <circle cx="107" cy="253" r="2" fill="rgba(212,168,67,.6)"/>
-          <circle cx="107" cy="107" r="2" fill="rgba(130,160,210,.5)"/>
-        </svg>
+    <div class="zbadge zb-se" style="--fd:.8s;--fd2:.5s">
+      <div class="zb-icon" style="background:rgba(229,90,43,.15)">🔥</div>
+      <div>
+        <div class="zb-label" style="color:var(--fire)">SE · AGNI</div>
+        <div class="zb-sub">Kitchen · Fire Element</div>
+        <div class="zb-chips">
+          <span class="zb-chip">Royale Glitz Terracotta</span>
+          <span class="zb-chip">Club Prime 19mm</span>
+        </div>
       </div>
     </div>
+    <div class="zbadge zb-sw" style="--fd:.8s;--fd2:.4s">
+      <div class="zb-icon" style="background:rgba(201,148,58,.15)">⚡</div>
+      <div>
+        <div class="zb-label" style="color:var(--gold-bright)">SW · NAIRUTYA</div>
+        <div class="zb-sub">Master Bedroom · Earth</div>
+        <div class="zb-chips">
+          <span class="zb-chip">Royale Glitz Deep Walnut</span>
+          <span class="zb-chip">Eternity GVT</span>
+        </div>
+      </div>
+    </div>
+    <div class="zbadge zb-nw" style="--fd:.8s;--fd2:.6s">
+      <div class="zb-icon" style="background:rgba(96,144,216,.15)">🌬️</div>
+      <div>
+        <div class="zb-label" style="color:var(--blue)">NW · VAYU</div>
+        <div class="zb-sub">Guest Room · Air</div>
+        <div class="zb-chips">
+          <span class="zb-chip">Royale Shyne Pearl</span>
+          <span class="zb-chip">Club Prime 16mm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="hero-body">
+    <div class="hero-eyebrow">
+      <span class="tag">India's First Vastu-Intelligent BOQ Platform</span>
+    </div>
+
+    <h1 class="hero-h1">
+      <span class="line1">Design homes that</span>
+      <span class="line2 shimmer-text">honour wisdom</span>
+      <span class="line3">of the ancients</span>
+    </h1>
+
+    <div class="hero-divider"></div>
+
+    <p class="hero-sub">
+      Generate Vastu-compliant interior material lists with 2026 India pricing from Asian Paints, Kajaria &amp; CenturyPly. Connect with verified vendors and share BOQs via WhatsApp — all in under 3 minutes.
+    </p>
+
+    <div class="trust-strip">
+      <div class="trust-item"><div class="trust-check">✓</div> No signup needed</div>
+      <div class="trust-sep"></div>
+      <div class="trust-item"><div class="trust-check">✓</div> 2026 live pricing</div>
+      <div class="trust-sep"></div>
+      <div class="trust-item"><div class="trust-check">✓</div> All 8 Vastu zones</div>
+      <div class="trust-sep"></div>
+      <div class="trust-item"><div class="trust-check">✓</div> WhatsApp delivery</div>
+      <div class="trust-sep"></div>
+      <div class="trust-item"><div class="trust-check">✓</div> Pooja room support</div>
+    </div>
+
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-lg" onclick="scrollTo('boq')">
+        ⚡ Generate Your BOQ Free
+      </button>
+      <button class="btn btn-ghost btn-lg" onclick="scrollTo('how')">
+        See How It Works
+      </button>
+    </div>
+
+    <div class="hero-stats">
+      <div class="h-stat">
+        <div class="h-stat-n" id="s1">0</div>
+        <div class="h-stat-l">BOQs Generated</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-n" id="s2">0</div>
+        <div class="h-stat-l">Cities Covered</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-n" id="s3">0</div>
+        <div class="h-stat-l">Designer Partners</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
   </div>
 </section>
 
-<!-- ── BRAND TRUST ─────────────────────────────────────────── -->
+<!-- ══════════════ BRAND STRIP ══════════════ -->
 <div id="brands">
-  <div class="brands-inner">
-    <span class="brands-label">Trusted Brands</span>
-    <div class="brand-item">
-      <div class="brand-dot"></div>
-      <span><strong>Asian Paints</strong> Royale Glitz</span>
-    </div>
-    <div class="brand-item">
-      <div class="brand-dot"></div>
-      <span><strong>Kajaria</strong> Eternity GVT</span>
-    </div>
-    <div class="brand-item">
-      <div class="brand-dot"></div>
-      <span><strong>CenturyPly</strong> Club Prime BWP</span>
-    </div>
-    <div class="brand-item">
-      <div class="brand-dot"></div>
-      <span><strong>Razorpay</strong> Payments</span>
-    </div>
-    <div class="brand-item">
-      <div class="brand-dot"></div>
-      <span><strong>WhatsApp</strong> Business API</span>
+  <div class="brands-track">
+    <div class="brands-inner" id="brandsInner">
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Asian Paints</strong> Royale Glitz</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Kajaria</strong> Eternity GVT</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>CenturyPly</strong> Club Prime BWP</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Razorpay</strong> Secure Payments</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>WhatsApp</strong> Business API</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Leonardo.ai</strong> PhotoReal V3</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Make.com</strong> Automation</div>
+      <!-- Duplicate for seamless loop -->
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Asian Paints</strong> Royale Glitz</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Kajaria</strong> Eternity GVT</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>CenturyPly</strong> Club Prime BWP</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Razorpay</strong> Secure Payments</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>WhatsApp</strong> Business API</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Leonardo.ai</strong> PhotoReal V3</div>
+      <div class="brand-pill"><div class="brand-dot"></div><strong>Make.com</strong> Automation</div>
     </div>
   </div>
 </div>
 
-<!-- ── FEATURES ─────────────────────────────────────────────── -->
+<!-- ══════════════ FEATURES ══════════════ -->
 <section id="features">
   <div class="container">
-    <div class="section-header reveal">
-      <span class="tag">Core Features</span>
-      <h2 class="section-title">Three pillars of<br><em>intelligent</em> design</h2>
-      <p class="section-sub">Everything an interior designer or homeowner needs — from Vastu compliance to material procurement — in one unified platform.</p>
+    <div class="sec-header reveal">
+      <span class="tag section-tag">Core Features</span>
+      <h2 class="sec-title">Three pillars of<br><em>intelligent</em> design</h2>
+      <p class="sec-sub">Everything an interior designer or homeowner needs — from Vastu compliance to material procurement — in one unified platform.</p>
     </div>
-
-    <div class="features-grid reveal">
+    <div class="features-wrap reveal">
       <div class="feat-card">
-        <div class="feat-icon">🧭</div>
-        <div class="feat-n">01 / VASTU INTELLIGENCE</div>
+        <div class="feat-num">01 / VASTU INTELLIGENCE</div>
+        <div class="feat-icon-wrap">🧭</div>
         <h3 class="feat-title">Direction-Aware Room Analysis</h3>
-        <p class="feat-body">Our AI understands all 8 Vastu zones — their elemental properties, forbidden placements, and ideal material pairings. Every recommendation is rooted in authentic Shastra principles.</p>
+        <p class="feat-body">Our AI understands all 8 Vastu zones — elemental properties, forbidden placements, and ideal material pairings. Every recommendation is rooted in authentic Shastra principles validated by practising Vastu consultants.</p>
         <div class="feat-chips">
-          <span class="chip">Agni SE</span>
-          <span class="chip">Ishanya NE</span>
-          <span class="chip">Nairutya SW</span>
-          <span class="chip">Brahmasthan</span>
-          <span class="chip">Pooja Room</span>
+          <span class="fchip">Agni SE</span><span class="fchip">Ishanya NE</span>
+          <span class="fchip">Nairutya SW</span><span class="fchip">Brahmasthan</span>
+          <span class="fchip">Pooja Room</span>
         </div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">📋</div>
-        <div class="feat-n">02 / BOQ ENGINE</div>
+        <div class="feat-num">02 / BOQ ENGINE</div>
+        <div class="feat-icon-wrap">📋</div>
         <h3 class="feat-title">India-Accurate Material Estimation</h3>
-        <p class="feat-body">Generates detailed Bill of Quantities with 2026 market pricing for Asian Paints, Kajaria, and CenturyPly. Exports to PDF or WhatsApp in one click.</p>
+        <p class="feat-body">Generates itemised Bills of Quantity with verified 2026 market pricing for Asian Paints, Kajaria, and CenturyPly. Export to branded PDF or share directly via WhatsApp in one tap.</p>
         <div class="feat-chips">
-          <span class="chip">₹ Live Pricing</span>
-          <span class="chip">PDF Export</span>
-          <span class="chip">WhatsApp Share</span>
-          <span class="chip">Brand Mapped</span>
+          <span class="fchip">₹ 2026 Pricing</span><span class="fchip">PDF Export</span>
+          <span class="fchip">WhatsApp Share</span><span class="fchip">Brand-Mapped</span>
         </div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">✨</div>
-        <div class="feat-n">03 / AI VISUALISATION</div>
+        <div class="feat-num">03 / AI VISUALISATION</div>
+        <div class="feat-icon-wrap">✨</div>
         <h3 class="feat-title">PhotoReal Room Renders</h3>
-        <p class="feat-body">Leonardo.ai PhotoReal V3 generates photorealistic room visuals with the exact Vastu zone, brand materials, and lighting conditions specified in your BOQ.</p>
+        <p class="feat-body">Leonardo.ai PhotoReal V3 generates photorealistic room visuals with the exact Vastu zone, brand materials, colour palette, and natural lighting conditions specified in your BOQ — instantly.</p>
         <div class="feat-chips">
-          <span class="chip">PhotoReal V3</span>
-          <span class="chip">Zone-Specific</span>
-          <span class="chip">Brand Accurate</span>
-          <span class="chip">Instant</span>
+          <span class="fchip">PhotoReal V3</span><span class="fchip">Zone-Specific</span>
+          <span class="fchip">Brand Accurate</span><span class="fchip">Instant</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── BOQ GENERATOR ───────────────────────────────────────── -->
+<!-- ══════════════ BOQ GENERATOR ══════════════ -->
 <section id="boq">
   <div class="container">
-    <div class="section-header reveal">
-      <span class="tag">Live Demo</span>
-      <h2 class="section-title">Generate your <em>BOQ</em><br>in 60 seconds</h2>
-      <p class="section-sub">Select your room, enter the dimensions, choose your tier — and get a complete Vastu-compliant material list with 2026 pricing.</p>
+    <div class="sec-header reveal">
+      <span class="tag section-tag">Live Demo</span>
+      <h2 class="sec-title">Generate your <em>BOQ</em><br>in 60 seconds</h2>
+      <p class="sec-sub">Select your room, enter dimensions, choose your tier — and get a complete Vastu-compliant material list with verified 2026 pricing.</p>
     </div>
 
     <div class="boq-wrap reveal">
-      <!-- FORM SIDE -->
-      <div class="boq-form-side">
-        <div class="boq-section-label">Configure Your Room</div>
+      <!-- LEFT: Form -->
+      <div class="boq-left">
+        <div class="panel-label">Configure Your Room</div>
 
         <div class="field-group">
           <label class="field-label">Room Type</label>
-          <div class="room-pills">
-            <button class="room-pill active" data-room="Master Bedroom" onclick="selectRoom(this)">Master Bedroom</button>
-            <button class="room-pill" data-room="Kitchen" onclick="selectRoom(this)">Kitchen</button>
-            <button class="room-pill" data-room="Living Room" onclick="selectRoom(this)">Living Room</button>
-            <button class="room-pill" data-room="Pooja Room" onclick="selectRoom(this)">Pooja Room</button>
-            <button class="room-pill" data-room="Kids Bedroom" onclick="selectRoom(this)">Kids Bedroom</button>
-            <button class="room-pill" data-room="Study / Home Office" onclick="selectRoom(this)">Study</button>
+          <div class="room-pills" id="roomPills">
+            <button class="room-pill active" data-room="Master Bedroom" onclick="pickRoom(this)">Master Bedroom</button>
+            <button class="room-pill" data-room="Kitchen" onclick="pickRoom(this)">Kitchen</button>
+            <button class="room-pill" data-room="Living Room" onclick="pickRoom(this)">Living Room</button>
+            <button class="room-pill" data-room="Pooja Room" onclick="pickRoom(this)">Pooja Room</button>
+            <button class="room-pill" data-room="Kids Bedroom" onclick="pickRoom(this)">Kids Bedroom</button>
+            <button class="room-pill" data-room="Study" onclick="pickRoom(this)">Study / Office</button>
+            <button class="room-pill" data-room="Balcony" onclick="pickRoom(this)">Balcony</button>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="dim-grid">
           <div class="field-group">
             <label class="field-label">Length (ft)</label>
-            <input type="number" class="field-input" id="room-length" placeholder="14" value="14" min="6" max="40">
+            <input type="number" class="field-input" id="rLen" value="14" min="6" max="50" placeholder="14">
           </div>
           <div class="field-group">
             <label class="field-label">Width (ft)</label>
-            <input type="number" class="field-input" id="room-width" placeholder="12" value="12" min="6" max="40">
+            <input type="number" class="field-input" id="rWid" value="12" min="6" max="50" placeholder="12">
           </div>
         </div>
 
         <div class="field-group">
           <label class="field-label">Vastu Direction (Main Entrance)</label>
           <div class="select-wrap">
-            <select class="field-select" id="vastu-dir">
+            <select class="field-select" id="vastDir">
               <option value="NE">North-East (Ishanya) — Water, Light</option>
-              <option value="SE">South-East (Agni) — Kitchen/Fire</option>
+              <option value="SE">South-East (Agni) — Kitchen, Fire</option>
               <option value="SW" selected>South-West (Nairutya) — Stability</option>
               <option value="NW">North-West (Vayu) — Air, Movement</option>
               <option value="N">North — Prosperity</option>
@@ -1072,53 +1404,66 @@ footer {
 
         <div class="field-group">
           <label class="field-label">Interior Tier</label>
-          <div class="tier-cards">
-            <div class="tier-card" data-tier="Basic" onclick="selectTier(this)">
+          <div class="tier-grid">
+            <div class="tier-card" data-tier="Basic" onclick="pickTier(this)">
               <div class="tier-name">Basic</div>
               <div class="tier-range">₹1,200–1,800/sqft</div>
             </div>
-            <div class="tier-card active" data-tier="Mid-Range" onclick="selectTier(this)">
+            <div class="tier-card active" data-tier="Mid-Range" onclick="pickTier(this)">
               <div class="tier-name">Mid-Range</div>
               <div class="tier-range">₹1,800–2,800/sqft</div>
             </div>
-            <div class="tier-card" data-tier="Luxury" onclick="selectTier(this)">
+            <div class="tier-card" data-tier="Luxury" onclick="pickTier(this)">
               <div class="tier-name">Luxury</div>
               <div class="tier-range">₹3,000+/sqft</div>
             </div>
           </div>
         </div>
 
-        <button class="generate-btn" onclick="generateBOQ()">
-          <span id="gen-btn-text">⚡ Generate Vastu-Smart BOQ</span>
+        <button class="gen-btn" id="genBtn" onclick="generateBOQ()">
+          <span id="genBtnTxt">⚡ Generate Vastu-Smart BOQ</span>
         </button>
       </div>
 
-      <!-- OUTPUT SIDE -->
-      <div class="boq-output-side">
-        <div class="boq-section-label">Your BOQ Output</div>
+      <!-- RIGHT: Output -->
+      <div class="boq-right">
+        <div class="panel-label">Your BOQ Output</div>
 
-        <div class="boq-placeholder" id="boq-placeholder">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <rect x="8" y="8" width="48" height="48" rx="8" stroke="currentColor" stroke-width="1"/>
-            <line x1="18" y1="24" x2="46" y2="24" stroke="currentColor" stroke-width="1"/>
-            <line x1="18" y1="32" x2="38" y2="32" stroke="currentColor" stroke-width="1"/>
-            <line x1="18" y1="40" x2="42" y2="40" stroke="currentColor" stroke-width="1"/>
-            <circle cx="49" cy="49" r="10" fill="#D4A843" stroke="#0C0B0A" stroke-width="2"/>
-            <text x="49" y="53" text-anchor="middle" fill="#0C0B0A" font-size="11" font-weight="700">₹</text>
-          </svg>
-          <p style="font-size:14px;color:var(--cream-muted);max-width:220px;text-align:center;line-height:1.6">Configure your room and click <strong style="color:var(--cream-dim)">Generate BOQ</strong> to see your Vastu-compliant material estimate</p>
+        <!-- Placeholder -->
+        <div class="boq-placeholder" id="boqPlaceholder">
+          <div class="placeholder-icon">📋</div>
+          <p style="font-size:14px;color:var(--cream-3);max-width:210px;line-height:1.7">
+            Configure your room and click <strong style="color:var(--cream-2)">Generate BOQ</strong> to see your Vastu-compliant material estimate
+          </p>
         </div>
 
-        <div class="boq-output" id="boq-output">
-          <div class="boq-header-out">
+        <!-- Loading shimmer -->
+        <div class="shimmer-wrap" id="boqShimmer">
+          <div class="shimmer-bar" style="width:60%;height:22px;margin-bottom:20px"></div>
+          <div class="shimmer-bar" style="width:100%;height:10px"></div>
+          <div class="shimmer-bar" style="width:100%;height:36px"></div>
+          <div class="shimmer-bar" style="width:100%;height:36px"></div>
+          <div class="shimmer-bar" style="width:100%;height:36px"></div>
+          <div class="shimmer-bar" style="width:100%;height:36px"></div>
+          <div class="shimmer-bar" style="width:100%;height:36px;margin-top:4px"></div>
+          <div class="shimmer-bar" style="width:100%;height:52px;margin-top:16px;border-radius:8px"></div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <div class="shimmer-bar" style="flex:1;height:42px;border-radius:8px;margin:0"></div>
+            <div class="shimmer-bar" style="flex:1;height:42px;border-radius:8px;margin:0"></div>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div class="boq-result" id="boqResult">
+          <div class="boq-result-header">
             <div>
-              <div class="boq-room-title" id="out-room-title">Master Bedroom</div>
-              <div class="boq-meta" id="out-room-meta">168 sq.ft · SW (Nairutya) · Mid-Range</div>
+              <div class="boq-room-title" id="outTitle">Master Bedroom</div>
+              <div class="boq-meta" id="outMeta">168 sq.ft · SW (Nairutya) · Mid-Range</div>
             </div>
-            <div class="vastu-badge" id="out-vastu-badge">✓ Vastu Compliant</div>
+            <div class="vastu-badge" id="outBadge">✓ Vastu Compliant</div>
           </div>
 
-          <table class="boq-table" id="boq-table">
+          <table class="boq-table">
             <thead>
               <tr>
                 <th>Material</th>
@@ -1126,23 +1471,23 @@ footer {
                 <th>Est. Cost</th>
               </tr>
             </thead>
-            <tbody id="boq-tbody"></tbody>
+            <tbody id="boqTbody"></tbody>
           </table>
 
           <div class="boq-total">
             <div>
               <div class="total-label">Total Material Estimate</div>
-              <div style="font-size:11px;color:var(--cream-muted);margin-top:3px">Excl. labour & GST</div>
+              <div class="total-sub">Excl. labour &amp; GST · ±10% market variance</div>
             </div>
-            <div class="total-val" id="boq-total-val">₹0</div>
+            <div class="total-val" id="boqTotal">₹0</div>
           </div>
 
           <div class="boq-actions">
-            <button class="boq-btn boq-btn-wa" onclick="shareWA()">
+            <button class="act-btn act-wa" onclick="shareWA()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.06L2 22l4.94-1.37C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm4.93 14.07c-.2.57-1.17 1.1-1.6 1.17-.43.07-.97.1-1.56-.1-.36-.11-.82-.27-1.41-.52-2.47-1.07-4.09-3.56-4.22-3.73-.13-.17-1.05-1.4-1.05-2.66 0-1.27.66-1.89.9-2.15.24-.26.52-.32.7-.32.17 0 .35 0 .5.01.16.01.38-.06.6.45.22.52.75 1.83.82 1.96.07.13.11.28.02.45-.09.17-.13.28-.26.43-.13.15-.27.34-.39.46-.13.12-.26.25-.11.49.15.24.65 1.07 1.39 1.73.96.85 1.76 1.12 2 1.24.24.12.38.1.52-.06.14-.16.6-.7.76-.94.16-.24.32-.2.54-.12.22.08 1.38.65 1.62.77.24.12.4.18.46.28.06.1.06.58-.14 1.16z"/></svg>
               Share via WhatsApp
             </button>
-            <button class="boq-btn boq-btn-pdf" onclick="downloadPDF()">
+            <button class="act-btn act-pdf" onclick="downloadPDF()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17H17M7 13H17M14 3H6A2 2 0 004 5V19A2 2 0 006 21H18A2 2 0 0020 19V9L14 3Z"/><path d="M14 3V9H20"/></svg>
               Download PDF
             </button>
@@ -1153,183 +1498,188 @@ footer {
   </div>
 </section>
 
-<!-- ── HOW IT WORKS ─────────────────────────────────────────── -->
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
 <section id="how">
   <div class="container">
-    <div class="section-header reveal">
-      <span class="tag">Process</span>
-      <h2 class="section-title">From floor plan to<br><em>vendor quotes</em> in minutes</h2>
+    <div class="sec-header reveal">
+      <span class="tag section-tag">Process</span>
+      <h2 class="sec-title">From floor plan to<br><em>vendor quotes</em> in minutes</h2>
     </div>
-
-    <div class="steps-grid">
+    <div class="steps-wrap">
       <div class="step-card reveal">
-        <div class="step-num">01</div>
+        <div class="step-num-wrap">
+          <div class="step-num-bg"></div>
+          <div class="step-num"><span class="step-icon">📐</span></div>
+        </div>
         <h3 class="step-title">Enter Room Details</h3>
         <p class="step-body">Select room type, dimensions, Vastu facing direction, and your budget tier. Takes under 60 seconds.</p>
-        <div class="step-time">~60 sec</div>
+        <span class="step-time">~60 sec</span>
       </div>
       <div class="step-card reveal reveal-d1">
-        <div class="step-num">02</div>
+        <div class="step-num-wrap">
+          <div class="step-num-bg"></div>
+          <div class="step-num"><span class="step-icon">🧭</span></div>
+        </div>
         <h3 class="step-title">AI Analyses Vastu</h3>
-        <p class="step-body">Our engine maps your room to the correct zone, applies elemental rules, and selects compliant materials from trusted Indian brands.</p>
-        <div class="step-time">~10 sec</div>
+        <p class="step-body">Our engine maps your room to the correct zone, applies elemental rules, and selects Vastu-compliant materials from trusted Indian brands.</p>
+        <span class="step-time">~10 sec</span>
       </div>
       <div class="step-card reveal reveal-d2">
-        <div class="step-num">03</div>
+        <div class="step-num-wrap">
+          <div class="step-num-bg"></div>
+          <div class="step-num"><span class="step-icon">📋</span></div>
+        </div>
         <h3 class="step-title">Get BOQ + Visuals</h3>
-        <p class="step-body">Receive a complete itemised material list with 2026 pricing, and a PhotoReal room render matching your specifications.</p>
-        <div class="step-time">~30 sec</div>
+        <p class="step-body">Receive a complete itemised material list with 2026 pricing, and a PhotoReal room render matching your exact specifications.</p>
+        <span class="step-time">~30 sec</span>
       </div>
       <div class="step-card reveal reveal-d3">
-        <div class="step-num">04</div>
-        <h3 class="step-title">Share & Procure</h3>
-        <p class="step-body">Send BOQ to your client via WhatsApp, download as PDF, or connect directly with verified vendors in your city.</p>
-        <div class="step-time">Instant</div>
+        <div class="step-num-wrap">
+          <div class="step-num-bg"></div>
+          <div class="step-num"><span class="step-icon">📤</span></div>
+        </div>
+        <h3 class="step-title">Share &amp; Procure</h3>
+        <p class="step-body">Send BOQ to your client via WhatsApp, download as branded PDF, or connect directly with verified vendors in your city.</p>
+        <span class="step-time">Instant</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── VASTU ZONES ──────────────────────────────────────────── -->
+<!-- ══════════════ VASTU ZONES ══════════════ -->
 <section id="zones">
   <div class="container">
-    <div class="zones-wrap">
-      <div class="zones-left">
-        <div class="section-header reveal" style="text-align:left;margin-bottom:32px;max-width:none">
-          <span class="tag">Vastu Knowledge Base</span>
-          <h2 class="section-title">Every direction,<br><em>understood</em></h2>
-          <p class="section-sub">Our AI carries deep knowledge of all 8 Vastu zones — from material compatibility to colour theory to furniture placement rules.</p>
+    <div class="zones-layout">
+      <div class="zones-text">
+        <div class="sec-header reveal" style="text-align:left;margin-left:0;margin-bottom:32px">
+          <span class="tag section-tag">Vastu Knowledge Base</span>
+          <h2 class="sec-title">Every direction,<br><em>understood</em></h2>
+          <p class="sec-sub">Our AI carries deep knowledge of all 8 Vastu zones — from material compatibility to colour theory to furniture placement rules.</p>
         </div>
-        <div class="zone-list reveal">
-          <div class="zone-item">
+        <ul class="zone-list reveal">
+          <li class="zone-item">
             <div class="zone-dir">SE</div>
             <div>
-              <div class="zone-name">Agni — South-East <span style="color:var(--fire)">🔥</span></div>
-              <div class="zone-rule">Kitchen zone. Fire element. No water features. Warm earth tones, copper accents recommended.</div>
-              <div class="zone-mats">
-                <span class="zone-chip">Royale Glitz Terracotta</span>
-                <span class="zone-chip">Kajaria Red Matt</span>
-                <span class="zone-chip">CenturyPly 19mm</span>
+              <div class="zone-name">Agni — South-East 🔥</div>
+              <div class="zone-desc">Kitchen zone. Fire element. No water features or mirrors. Warm earth tones, copper accents and terracotta tiles recommended.</div>
+              <div class="zone-tags">
+                <span class="ztag">Royale Glitz Terracotta</span>
+                <span class="ztag">Kajaria Red Matt</span>
+                <span class="ztag">CenturyPly 19mm</span>
               </div>
             </div>
-          </div>
-          <div class="zone-item">
+          </li>
+          <li class="zone-item">
             <div class="zone-dir">NE</div>
             <div>
-              <div class="zone-name">Ishanya — North-East <span style="color:var(--teal)">💧</span></div>
-              <div class="zone-rule">Pooja room &amp; water elements. Keep light &amp; open. No heavy storage or dark colours.</div>
-              <div class="zone-mats">
-                <span class="zone-chip">Royale Shyne White</span>
-                <span class="zone-chip">Kajaria Pietra Ocre Matt</span>
-                <span class="zone-chip">Mikasa 6mm</span>
+              <div class="zone-name">Ishanya — North-East 💧</div>
+              <div class="zone-desc">Pooja room and water elements. Keep light and open. No heavy storage or dark colours. White and pale marble preferred.</div>
+              <div class="zone-tags">
+                <span class="ztag">Royale Shyne White</span>
+                <span class="ztag">Pietra Ocre Matt</span>
+                <span class="ztag">Mikasa 6mm</span>
               </div>
             </div>
-          </div>
-          <div class="zone-item">
+          </li>
+          <li class="zone-item">
             <div class="zone-dir">SW</div>
             <div>
-              <div class="zone-name">Nairutya — South-West <span style="color:var(--gold)">⚡</span></div>
-              <div class="zone-rule">Master bedroom. Earth element. Heavy furniture, dark woods. Grounding colours.</div>
-              <div class="zone-mats">
-                <span class="zone-chip">Royale Glitz Deep Walnut</span>
-                <span class="zone-chip">Kajaria Eternity GVT</span>
-                <span class="zone-chip">Club Prime BWP</span>
+              <div class="zone-name">Nairutya — South-West ⚡</div>
+              <div class="zone-desc">Master bedroom. Earth element. Heavy dark furniture, solid woods. Grounding earth tones create stability and prosperity.</div>
+              <div class="zone-tags">
+                <span class="ztag">Royale Glitz Deep Walnut</span>
+                <span class="ztag">Eternity GVT</span>
+                <span class="ztag">Club Prime BWP</span>
               </div>
             </div>
-          </div>
-          <div class="zone-item">
+          </li>
+          <li class="zone-item">
             <div class="zone-dir">NW</div>
             <div>
               <div class="zone-name">Vayu — North-West 🌬️</div>
-              <div class="zone-rule">Guest room &amp; movement. Air element. Light furniture, whites and greys. Keep uncluttered.</div>
-              <div class="zone-mats">
-                <span class="zone-chip">Royale Shyne Pearl</span>
-                <span class="zone-chip">Kajaria GVT Light</span>
-                <span class="zone-chip">Club Prime 16mm</span>
+              <div class="zone-desc">Guest room and movement zones. Air element. Light uncluttered furniture, whites and soft greys keep energy flowing.</div>
+              <div class="zone-tags">
+                <span class="ztag">Royale Shyne Pearl</span>
+                <span class="ztag">Kajaria GVT Light</span>
+                <span class="ztag">Club Prime 16mm</span>
               </div>
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
 
-      <div class="compass-container reveal reveal-d2">
-        <svg id="compass-svg" viewBox="0 0 440 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="compass-visual reveal reveal-d2">
+        <div class="compass-glow"></div>
+        <svg width="440" height="440" viewBox="0 0 440 440" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <radialGradient id="cg" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#1C1A15"/>
-              <stop offset="100%" stop-color="#0C0B0A"/>
+            <radialGradient id="cg2" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1A1710"/>
+              <stop offset="100%" stop-color="#080706"/>
             </radialGradient>
           </defs>
-          <circle cx="220" cy="220" r="210" fill="url(#cg)" stroke="rgba(212,168,67,.12)" stroke-width="1"/>
-          <!-- grid -->
-          <line x1="220" y1="20" x2="220" y2="420" stroke="rgba(212,168,67,.06)" stroke-width=".5" stroke-dasharray="4 6"/>
-          <line x1="20" y1="220" x2="420" y2="220" stroke="rgba(212,168,67,.06)" stroke-width=".5" stroke-dasharray="4 6"/>
-          <line x1="72" y1="72" x2="368" y2="368" stroke="rgba(212,168,67,.05)" stroke-width=".5" stroke-dasharray="4 6"/>
-          <line x1="368" y1="72" x2="72" y2="368" stroke="rgba(212,168,67,.05)" stroke-width=".5" stroke-dasharray="4 6"/>
-          <!-- rings -->
-          <circle cx="220" cy="220" r="190" stroke="rgba(212,168,67,.08)" stroke-width=".5"/>
-          <circle cx="220" cy="220" r="145" stroke="rgba(212,168,67,.1)" stroke-width=".5"/>
-          <circle cx="220" cy="220" r="90" stroke="rgba(212,168,67,.14)" stroke-width=".8"/>
-          <circle cx="220" cy="220" r="46" stroke="rgba(212,168,67,.25)" stroke-width=".8"/>
-
+          <circle cx="220" cy="220" r="212" fill="url(#cg2)" stroke="rgba(201,148,58,.15)" stroke-width="1"/>
+          <line x1="220" y1="18" x2="220" y2="422" stroke="rgba(201,148,58,.07)" stroke-width=".5" stroke-dasharray="4 6"/>
+          <line x1="18" y1="220" x2="422" y2="220" stroke="rgba(201,148,58,.07)" stroke-width=".5" stroke-dasharray="4 6"/>
+          <line x1="70" y1="70" x2="370" y2="370" stroke="rgba(201,148,58,.05)" stroke-width=".5" stroke-dasharray="4 6"/>
+          <line x1="370" y1="70" x2="70" y2="370" stroke="rgba(201,148,58,.05)" stroke-width=".5" stroke-dasharray="4 6"/>
+          <circle cx="220" cy="220" r="188" stroke="rgba(201,148,58,.08)" stroke-width=".5"/>
+          <circle cx="220" cy="220" r="148" stroke="rgba(201,148,58,.1)" stroke-width=".6"/>
+          <circle cx="220" cy="220" r="92" stroke="rgba(201,148,58,.14)" stroke-width=".8"/>
+          <circle cx="220" cy="220" r="46" stroke="rgba(201,148,58,.28)" stroke-width=".9"/>
           <!-- Zone fills -->
-          <!-- N -->
-          <path d="M220 220 L190 74 A145 145 0 0 1 250 74 Z" fill="rgba(130,180,210,.08)"/>
-          <!-- NE -->
-          <path d="M220 220 L317 123 A145 145 0 0 0 250 74 Z" fill="rgba(42,191,170,.1)"/>
-          <!-- E -->
-          <path d="M220 220 L365 250 A145 145 0 0 0 317 123 Z" fill="rgba(180,220,130,.07)"/>
-          <!-- SE -->
-          <path d="M220 220 L317 317 A145 145 0 0 0 365 250 Z" fill="rgba(232,93,48,.09)"/>
-          <!-- S -->
-          <path d="M220 220 L190 365 A145 145 0 0 1 250 365 Z" fill="rgba(180,140,80,.07)"/>
-          <!-- SW -->
-          <path d="M220 220 L123 317 A145 145 0 0 0 190 365 Z" fill="rgba(212,168,67,.1)"/>
-          <!-- W -->
-          <path d="M220 220 L75 190 A145 145 0 0 0 123 317 Z" fill="rgba(160,160,200,.07)"/>
-          <!-- NW -->
-          <path d="M220 220 L190 74 A145 145 0 0 0 75 190 Z" fill="rgba(120,180,220,.07)"/>
-
-          <!-- Zone Labels -->
-          <text x="220" y="60" text-anchor="middle" fill="rgba(130,180,210,.7)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">N</text>
-          <text x="313" y="100" text-anchor="middle" fill="rgba(42,191,170,.8)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">NE</text>
-          <text x="375" y="230" text-anchor="middle" fill="rgba(180,220,130,.7)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">E</text>
-          <text x="348" y="340" text-anchor="middle" fill="rgba(232,93,48,.8)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">SE</text>
-          <text x="220" y="400" text-anchor="middle" fill="rgba(180,140,80,.7)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">S</text>
-          <text x="92" y="340" text-anchor="middle" fill="rgba(212,168,67,.8)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">SW</text>
-          <text x="56" y="230" text-anchor="middle" fill="rgba(160,160,200,.7)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">W</text>
-          <text x="92" y="100" text-anchor="middle" fill="rgba(120,180,220,.7)" font-size="10" font-family="DM Mono,monospace" letter-spacing=".08em">NW</text>
-
-          <!-- Zone sublabels -->
-          <text x="308" y="115" text-anchor="middle" fill="rgba(42,191,170,.5)" font-size="7.5" font-family="DM Sans,sans-serif">Ishanya</text>
-          <text x="344" y="332" text-anchor="middle" fill="rgba(232,93,48,.5)" font-size="7.5" font-family="DM Sans,sans-serif">Agni</text>
-          <text x="93" y="332" text-anchor="middle" fill="rgba(212,168,67,.5)" font-size="7.5" font-family="DM Sans,sans-serif">Nairutya</text>
-          <text x="96" y="115" text-anchor="middle" fill="rgba(120,180,220,.5)" font-size="7.5" font-family="DM Sans,sans-serif">Vayu</text>
-
+          <path d="M220 220 L192 72 A148 148 0 0 1 248 72 Z" fill="rgba(96,144,216,.08)"/>
+          <path d="M220 220 L318 122 A148 148 0 0 0 248 72 Z" fill="rgba(31,191,170,.11)"/>
+          <path d="M220 220 L368 248 A148 148 0 0 0 318 122 Z" fill="rgba(150,210,120,.07)"/>
+          <path d="M220 220 L318 318 A148 148 0 0 0 368 248 Z" fill="rgba(229,90,43,.09)"/>
+          <path d="M220 220 L192 368 A148 148 0 0 1 248 368 Z" fill="rgba(180,140,80,.07)"/>
+          <path d="M220 220 L122 318 A148 148 0 0 0 192 368 Z" fill="rgba(201,148,58,.11)"/>
+          <path d="M220 220 L72 192 A148 148 0 0 0 122 318 Z" fill="rgba(160,160,200,.07)"/>
+          <path d="M220 220 L192 72 A148 148 0 0 0 72 192 Z" fill="rgba(96,160,220,.07)"/>
+          <!-- Direction labels -->
+          <text x="220" y="54" text-anchor="middle" fill="rgba(96,144,216,.8)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">N</text>
+          <text x="318" y="98" text-anchor="middle" fill="rgba(31,191,170,.9)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">NE</text>
+          <text x="384" y="228" text-anchor="middle" fill="rgba(150,210,120,.8)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">E</text>
+          <text x="352" y="348" text-anchor="middle" fill="rgba(229,90,43,.9)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">SE</text>
+          <text x="220" y="406" text-anchor="middle" fill="rgba(180,140,80,.8)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">S</text>
+          <text x="88" y="348" text-anchor="middle" fill="rgba(201,148,58,.9)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">SW</text>
+          <text x="52" y="228" text-anchor="middle" fill="rgba(160,160,200,.8)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">W</text>
+          <text x="88" y="98" text-anchor="middle" fill="rgba(96,160,220,.8)" font-size="11" font-family="DM Mono,monospace" letter-spacing=".08em">NW</text>
+          <!-- Sub-labels -->
+          <text x="314" y="115" text-anchor="middle" fill="rgba(31,191,170,.55)" font-size="8" font-family="DM Sans,sans-serif">Ishanya</text>
+          <text x="346" y="340" text-anchor="middle" fill="rgba(229,90,43,.55)" font-size="8" font-family="DM Sans,sans-serif">Agni</text>
+          <text x="90" y="340" text-anchor="middle" fill="rgba(201,148,58,.55)" font-size="8" font-family="DM Sans,sans-serif">Nairutya</text>
+          <text x="94" y="115" text-anchor="middle" fill="rgba(96,160,220,.55)" font-size="8" font-family="DM Sans,sans-serif">Vayu</text>
           <!-- Center -->
-          <circle cx="220" cy="220" r="6" fill="#D4A843"/>
-          <circle cx="220" cy="220" r="14" fill="none" stroke="#D4A843" stroke-width=".5" opacity=".4"/>
-          <text x="220" y="214" text-anchor="middle" fill="rgba(212,168,67,.55)" font-size="7" font-family="DM Mono,monospace" letter-spacing=".1em">BRAHMA</text>
-          <text x="220" y="226" text-anchor="middle" fill="rgba(212,168,67,.35)" font-size="7" font-family="DM Mono,monospace" letter-spacing=".1em">STHAN</text>
-
-          <!-- Pointer -->
-          <polygon points="220,44 214,64 220,58 226,64" fill="#D4A843" opacity=".8"/>
-          <polygon points="220,396 214,376 220,382 226,376" fill="rgba(212,168,67,.3)"/>
+          <circle cx="220" cy="220" r="7" fill="#C9943A"/>
+          <circle cx="220" cy="220" r="15" fill="none" stroke="#C9943A" stroke-width=".6" opacity=".5"/>
+          <text x="220" y="214" text-anchor="middle" fill="rgba(201,148,58,.6)" font-size="7" font-family="DM Mono,monospace" letter-spacing=".1em">BRAHMA</text>
+          <text x="220" y="228" text-anchor="middle" fill="rgba(201,148,58,.4)" font-size="7" font-family="DM Mono,monospace" letter-spacing=".1em">STHAN</text>
+          <!-- North pointer -->
+          <polygon points="220,42 214,66 220,58 226,66" fill="#C9943A" opacity=".9"/>
+          <polygon points="220,398 214,374 220,382 226,374" fill="rgba(201,148,58,.35)"/>
+          <!-- Accent dots -->
+          <circle cx="220" cy="72" r="3" fill="#C9943A" opacity=".8"/>
+          <circle cx="368" cy="220" r="2.5" fill="#C9943A" opacity=".4"/>
+          <circle cx="220" cy="368" r="2.5" fill="#C9943A" opacity=".4"/>
+          <circle cx="72" cy="220" r="2.5" fill="#C9943A" opacity=".4"/>
+          <circle cx="318" cy="122" r="2" fill="rgba(31,191,170,.7)"/>
+          <circle cx="318" cy="318" r="2" fill="rgba(229,90,43,.7)"/>
+          <circle cx="122" cy="318" r="2" fill="rgba(201,148,58,.7)"/>
+          <circle cx="122" cy="122" r="2" fill="rgba(96,160,220,.6)"/>
         </svg>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── PRICING ──────────────────────────────────────────────── -->
+<!-- ══════════════ PRICING ══════════════ -->
 <section id="pricing">
   <div class="container">
-    <div class="section-header reveal">
-      <span class="tag">Pricing</span>
-      <h2 class="section-title">Transparent pricing,<br><em>no surprises</em></h2>
-      <p class="section-sub">Start free. Upgrade when you're ready. All plans include our Vastu intelligence engine and 2026 India pricing data.</p>
+    <div class="sec-header reveal">
+      <span class="tag section-tag">Pricing</span>
+      <h2 class="sec-title">Transparent pricing,<br><em>no surprises</em></h2>
+      <p class="sec-sub">Start free. Upgrade when you're ready. All plans include our Vastu intelligence engine and 2026 India pricing data.</p>
     </div>
-
     <div class="pricing-grid reveal">
       <!-- Free -->
       <div class="price-card">
@@ -1341,46 +1691,44 @@ footer {
           <span class="price-val">0</span>
         </div>
         <div class="price-note">Forever free · No card required</div>
-        <div class="price-divider"></div>
-        <ul class="price-features">
-          <li><span class="feat-check">✓</span> 1 Room BOQ per month</li>
-          <li><span class="feat-check">✓</span> Basic Vastu zone analysis</li>
-          <li><span class="feat-check">✓</span> In-app material list</li>
-          <li><span class="feat-check">✓</span> 2026 India pricing reference</li>
-          <li><span class="feat-x">–</span> PDF Export</li>
-          <li><span class="feat-x">–</span> WhatsApp delivery</li>
-          <li><span class="feat-x">–</span> AI room renders</li>
-          <li><span class="feat-x">–</span> Vendor connect</li>
+        <div class="price-div"></div>
+        <ul class="price-feats">
+          <li><span class="pf-check">✓</span> 1 Room BOQ per month</li>
+          <li><span class="pf-check">✓</span> Basic Vastu zone analysis</li>
+          <li><span class="pf-check">✓</span> In-app material list</li>
+          <li><span class="pf-check">✓</span> 2026 India pricing reference</li>
+          <li><span class="pf-no">–</span> PDF Export</li>
+          <li><span class="pf-no">–</span> WhatsApp delivery</li>
+          <li><span class="pf-no">–</span> AI room renders</li>
+          <li><span class="pf-no">–</span> Vendor connect</li>
         </ul>
-        <button class="price-btn price-btn-outline">Get Started Free</button>
+        <button class="price-cta pcta-outline" onclick="showToast('Free plan — sign up coming soon!')">Get Started Free</button>
       </div>
-
-      <!-- Pro (Featured) -->
-      <div class="price-card featured">
-        <div class="price-popular">Most Popular</div>
+      <!-- Pro -->
+      <div class="price-card popular">
+        <div class="pop-badge">Most Popular</div>
         <div class="price-tier">Professional</div>
         <div class="price-name">Pro</div>
         <p class="price-desc">For interior designers and homeowners who want the complete Vastu-smart procurement experience.</p>
         <div class="price-amount">
           <span class="price-curr">₹</span>
-          <span class="price-val gold">499</span>
+          <span class="price-val highlight">499</span>
         </div>
         <div class="price-note">per month · or ₹2,999/year (save 50%)</div>
-        <div class="price-divider"></div>
-        <ul class="price-features">
-          <li><span class="feat-check">✓</span> Unlimited Room BOQs</li>
-          <li><span class="feat-check">✓</span> Full Vastu zone + direction analysis</li>
-          <li><span class="feat-check">✓</span> PDF Export (branded)</li>
-          <li><span class="feat-check">✓</span> WhatsApp delivery via Make.com</li>
-          <li><span class="feat-check">✓</span> 5 AI room renders / month</li>
-          <li><span class="feat-check">✓</span> Pooja Room + all 8 room types</li>
-          <li><span class="feat-check">✓</span> Vendor connect (3 quotes)</li>
-          <li><span class="feat-x">–</span> Agency dashboard</li>
+        <div class="price-div"></div>
+        <ul class="price-feats">
+          <li><span class="pf-check">✓</span> Unlimited Room BOQs</li>
+          <li><span class="pf-check">✓</span> Full Vastu zone + direction analysis</li>
+          <li><span class="pf-check">✓</span> PDF Export (branded)</li>
+          <li><span class="pf-check">✓</span> WhatsApp delivery</li>
+          <li><span class="pf-check">✓</span> 5 AI room renders / month</li>
+          <li><span class="pf-check">✓</span> All 8 room types + Pooja Room</li>
+          <li><span class="pf-check">✓</span> Vendor connect (3 quotes)</li>
+          <li><span class="pf-no">–</span> Agency dashboard</li>
         </ul>
-        <button class="price-btn price-btn-filled">Start Pro Trial →</button>
+        <button class="price-cta pcta-solid" onclick="showToast('Pro trial — Razorpay integration coming soon!')">Start Pro Trial →</button>
       </div>
-
-      <!-- Agency -->
+      <!-- Studio -->
       <div class="price-card">
         <div class="price-tier">Agency</div>
         <div class="price-name">Studio</div>
@@ -1390,94 +1738,78 @@ footer {
           <span class="price-val">2,499</span>
         </div>
         <div class="price-note">per month · Up to 5 team members</div>
-        <div class="price-divider"></div>
-        <ul class="price-features">
-          <li><span class="feat-check">✓</span> Everything in Pro</li>
-          <li><span class="feat-check">✓</span> Multi-project dashboard</li>
-          <li><span class="feat-check">✓</span> Unlimited AI renders</li>
-          <li><span class="feat-check">✓</span> Priority vendor network</li>
-          <li><span class="feat-check">✓</span> White-label PDF reports</li>
-          <li><span class="feat-check">✓</span> API access (usage-based)</li>
-          <li><span class="feat-check">✓</span> Dedicated account manager</li>
-          <li><span class="feat-check">✓</span> Asian Paints / Kajaria affiliate</li>
+        <div class="price-div"></div>
+        <ul class="price-feats">
+          <li><span class="pf-check">✓</span> Everything in Pro</li>
+          <li><span class="pf-check">✓</span> Multi-project dashboard</li>
+          <li><span class="pf-check">✓</span> Unlimited AI renders</li>
+          <li><span class="pf-check">✓</span> Priority vendor network</li>
+          <li><span class="pf-check">✓</span> White-label PDF reports</li>
+          <li><span class="pf-check">✓</span> API access (usage-based)</li>
+          <li><span class="pf-check">✓</span> Dedicated account manager</li>
+          <li><span class="pf-check">✓</span> Asian Paints / Kajaria affiliate</li>
         </ul>
-        <button class="price-btn price-btn-outline">Contact Sales</button>
+        <button class="price-cta pcta-outline" onclick="showToast('Connecting you to sales...')">Contact Sales</button>
       </div>
     </div>
-
-    <div style="text-align:center;margin-top:28px;font-size:13px;color:var(--cream-muted)">
-      All plans use Razorpay for secure payments. Cancel anytime. GST applicable.
-    </div>
+    <p style="text-align:center;margin-top:28px;font-size:12.5px;color:var(--cream-3)">All plans use Razorpay for secure payments. Cancel anytime. GST applicable.</p>
   </div>
 </section>
 
-<!-- ── SOCIAL PROOF ─────────────────────────────────────────── -->
+<!-- ══════════════ SOCIAL PROOF ══════════════ -->
 <section id="proof">
   <div class="container">
-    <div class="section-header reveal">
-      <span class="tag">Social Proof</span>
-      <h2 class="section-title">Trusted by designers<br>across <em>India</em></h2>
+    <div class="sec-header reveal">
+      <span class="tag section-tag">Social Proof</span>
+      <h2 class="sec-title">Trusted by designers<br>across <em>India</em></h2>
     </div>
-
-    <div class="stats-row reveal">
-      <div class="stat-box"><div class="stat-n" data-target="1200">0</div><div class="stat-l">BOQs Generated</div></div>
-      <div class="stat-box"><div class="stat-n" data-target="28">0</div><div class="stat-l">Cities Covered</div></div>
-      <div class="stat-box"><div class="stat-n" data-target="340">0</div><div class="stat-l">Designer Partners</div></div>
-      <div class="stat-box"><div class="stat-n" data-target="98">0</div><div class="stat-l">% Vastu Accuracy</div></div>
+    <div class="stats-grid reveal">
+      <div class="stat-box"><div class="stat-n" data-target="1200" data-suffix="+">0</div><div class="stat-l">BOQs Generated</div></div>
+      <div class="stat-box"><div class="stat-n" data-target="28" data-suffix="+">0</div><div class="stat-l">Cities Covered</div></div>
+      <div class="stat-box"><div class="stat-n" data-target="340" data-suffix="+">0</div><div class="stat-l">Designer Partners</div></div>
+      <div class="stat-box"><div class="stat-n" data-target="98" data-suffix="%">0</div><div class="stat-l">Vastu Accuracy</div></div>
     </div>
-
-    <div class="testimonials reveal">
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"Finally, a tool that actually understands Vastu rules for each room. The SE kitchen BOQ was spot-on — right materials, right price, and WhatsApp delivery made my client super happy."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">PM</div>
-          <div>
-            <div class="testi-name">Priya Mehta</div>
-            <div class="testi-role">Interior Designer, Bengaluru</div>
-          </div>
+    <div class="reviews-grid reveal">
+      <div class="review-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"Finally a tool that actually understands Vastu rules for each room. The SE kitchen BOQ was spot-on — right materials, right price, and WhatsApp delivery made my client super happy."</p>
+        <div class="rev-author">
+          <div class="rev-avatar">PM</div>
+          <div><div class="rev-name">Priya Mehta</div><div class="rev-role">Interior Designer, Bengaluru</div></div>
         </div>
       </div>
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"The Pooja room feature is incredible. CenturyPly recommendation for the mandir back panel with Kajaria Pietra Ocre was exactly what we needed. Used Vastu-Procure for our entire 3BHK."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">RS</div>
-          <div>
-            <div class="testi-name">Rajan Sharma</div>
-            <div class="testi-role">Homeowner, Pune</div>
-          </div>
+      <div class="review-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"The Pooja room feature is incredible. CenturyPly recommendation for the mandir back panel with Kajaria Pietra Ocre was exactly what we needed. Used Vastu-Procure for our entire 3BHK."</p>
+        <div class="rev-author">
+          <div class="rev-avatar">RS</div>
+          <div><div class="rev-name">Rajan Sharma</div><div class="rev-role">Homeowner, Pune</div></div>
         </div>
       </div>
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"As an agency we needed a tool that saves time and impresses clients. The branded PDF BOQ with AI renders is now our standard deliverable. Client retention went up 30%."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">AK</div>
-          <div>
-            <div class="testi-name">Anita Kumar</div>
-            <div class="testi-role">Principal Designer, Mumbai</div>
-          </div>
+      <div class="review-card">
+        <div class="rev-stars">★★★★★</div>
+        <p class="rev-text">"As an agency we needed a tool that saves time and impresses clients. The branded PDF BOQ with AI renders is now our standard deliverable. Client retention went up 30% this quarter."</p>
+        <div class="rev-author">
+          <div class="rev-avatar">AK</div>
+          <div><div class="rev-name">Anita Kumar</div><div class="rev-role">Principal Designer, Mumbai</div></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── CTA BANNER ─────────────────────────────────────────────── -->
-<div id="cta-banner">
+<!-- ══════════════ CTA ══════════════ -->
+<div id="cta">
   <div class="container">
-    <div class="cta-inner">
-      <span class="tag" style="margin-bottom:20px">Start Today</span>
-      <h2 class="cta-title">Ready to design with<br><em>Vastu intelligence?</em></h2>
+    <div class="cta-body reveal">
+      <span class="tag section-tag" style="margin-bottom:24px">Start Today</span>
+      <h2 class="cta-h2">Ready to design with<br><em>Vastu intelligence?</em></h2>
       <p class="cta-sub">Generate your first room BOQ free. No signup required.</p>
-      <div class="cta-actions">
-        <button class="btn btn-gold" style="padding:16px 36px;font-size:15px;border-radius:var(--r-md)" onclick="document.getElementById('boq').scrollIntoView({behavior:'smooth'})">
-          Generate Free BOQ →
-        </button>
-        <a href="https://wa.me/919999999999?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Vastu-Procure%20AI" target="_blank">
-          <button class="btn btn-wa">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.06L2 22l4.94-1.37C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm4.93 14.07c-.2.57-1.17 1.1-1.6 1.17-.43.07-.97.1-1.56-.1-.36-.11-.82-.27-1.41-.52-2.47-1.07-4.09-3.56-4.22-3.73-.13-.17-1.05-1.4-1.05-2.66 0-1.27.66-1.89.9-2.15.24-.26.52-.32.7-.32.17 0 .35 0 .5.01.16.01.38-.06.6.45.22.52.75 1.83.82 1.96.07.13.11.28.02.45-.09.17-.13.28-.26.43-.13.15-.27.34-.39.46-.13.12-.26.25-.11.49.15.24.65 1.07 1.39 1.73.96.85 1.76 1.12 2 1.24.24.12.38.1.52-.06.14-.16.6-.7.76-.94.16-.24.32-.2.54-.12.22.08 1.38.65 1.62.77.24.12.4.18.46.28.06.1.06.58-.14 1.16z"/></svg>
+      <div class="cta-btns">
+        <button class="btn btn-primary btn-lg" onclick="scrollTo('boq')">Generate Free BOQ →</button>
+        <a href="https://wa.me/919999999999?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20Vastu-Procure%20AI" target="_blank" rel="noopener">
+          <button class="btn btn-wa btn-lg">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.06L2 22l4.94-1.37C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm4.93 14.07c-.2.57-1.17 1.1-1.6 1.17-.43.07-.97.1-1.56-.1-.36-.11-.82-.27-1.41-.52-2.47-1.07-4.09-3.56-4.22-3.73-.13-.17-1.05-1.4-1.05-2.66 0-1.27.66-1.89.9-2.15.24-.26.52-.32.7-.32.17 0 .35 0 .5.01.16.01.38-.06.6.45.22.52.75 1.83.82 1.96.07.13.11.28.02.45-.09.17-.13.28-.26.43-.13.15-.27.34-.39.46-.13.12-.26.25-.11.49.15.24.65 1.07 1.39 1.73.96.85 1.76 1.12 2 1.24.24.12.38.1.52-.06.14-.16.6-.7.76-.94.16-.24.32-.2.54-.12.22.08 1.38.65 1.62.77.24.12.4.18.46.28.06.1.06.58-.14 1.16z"/></svg>
             Chat on WhatsApp
           </button>
         </a>
@@ -1486,19 +1818,19 @@ footer {
   </div>
 </div>
 
-<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<!-- ══════════════ FOOTER ══════════════ -->
 <footer>
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand">
-        <a href="#" class="logo" style="font-size:18px">
-          <div class="logo-mark"><svg viewBox="0 0 34 34" fill="none"><rect x="1" y="1" width="32" height="32" rx="8" stroke="#D4A843" stroke-width=".8"/><circle cx="17" cy="17" r="8" stroke="#D4A843" stroke-width=".8"/><circle cx="17" cy="17" r="3" fill="#D4A843" opacity=".8"/><polygon points="17,9 19,17 17,25 15,17" fill="#D4A843" opacity=".25"/><circle cx="17" cy="9" r="1.5" fill="#D4A843"/></svg></div>
-          Vastu<span>·</span>Procure <span>AI</span>
+      <div class="footer-about">
+        <a href="#" class="logo" style="font-size:19px">
+          <div class="logo-icon"><svg viewBox="0 0 36 36" fill="none"><rect x="1" y="1" width="34" height="34" rx="9" stroke="#C9943A" stroke-width=".8"/><circle cx="18" cy="18" r="9" stroke="#C9943A" stroke-width=".9"/><circle cx="18" cy="18" r="3.5" fill="#C9943A" opacity=".9"/><polygon points="18,9 20,18 18,27 16,18" fill="#C9943A" opacity=".22"/><circle cx="18" cy="9" r="1.8" fill="#C9943A"/></svg></div>
+          <span class="logo-text">Vastu<em>·</em>Procure <em>AI</em></span>
         </a>
-        <p>India's first Vastu-intelligent interior BOQ platform. Accurate 2026 pricing, trusted brands, WhatsApp-native delivery.</p>
+        <p>India's first Vastu-intelligent interior BOQ platform. Accurate 2026 pricing, trusted brands, WhatsApp-native delivery. Made with ♦ in India.</p>
       </div>
       <div>
-        <div class="footer-col-title">Product</div>
+        <div class="footer-hl">Product</div>
         <ul class="footer-links">
           <li><a href="#features">Features</a></li>
           <li><a href="#boq">BOQ Generator</a></li>
@@ -1508,7 +1840,7 @@ footer {
         </ul>
       </div>
       <div>
-        <div class="footer-col-title">Company</div>
+        <div class="footer-hl">Company</div>
         <ul class="footer-links">
           <li><a href="#">About Us</a></li>
           <li><a href="#">Blog</a></li>
@@ -1518,7 +1850,7 @@ footer {
         </ul>
       </div>
       <div>
-        <div class="footer-col-title">Legal</div>
+        <div class="footer-hl">Legal</div>
         <ul class="footer-links">
           <li><a href="#">Privacy Policy</a></li>
           <li><a href="#">Terms of Use</a></li>
@@ -1526,13 +1858,13 @@ footer {
           <li><a href="#">Refund Policy</a></li>
         </ul>
         <div style="margin-top:20px">
-          <div class="footer-col-title">Payments</div>
-          <div style="font-size:12px;color:var(--cream-muted);line-height:1.7">Secured by<br>Razorpay · UPI · Cards</div>
+          <div class="footer-hl">Payments</div>
+          <p style="font-size:12px;color:var(--cream-3);line-height:1.7;margin-top:8px">Secured by<br>Razorpay · UPI · Cards · Net Banking</p>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <div class="footer-copy">© 2026 Vastu-Procure AI. Made with ♦ in India.</div>
+      <div class="footer-copy">© 2026 Vastu-Procure AI. All rights reserved.</div>
       <div class="footer-legal">
         <a href="#">Privacy</a>
         <a href="#">Terms</a>
@@ -1542,209 +1874,253 @@ footer {
   </div>
 </footer>
 
-<!-- ── JAVASCRIPT ─────────────────────────────────────────────── -->
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════ JAVASCRIPT ══════════════ -->
 <script>
-/* ── BOQ DATA ─── */
-const boqData = {
+/* ── BOQ DATA ───────────────────────────────────────────── */
+const ROOMS = {
   "Master Bedroom": {
-    zone: "SW (Nairutya)", element: "Earth",
-    items: [
-      { name: "Wall Paint", brand: "Asian Paints Royale Glitz — Deep Walnut", unitCost: 650, coverage: 40, unit: "Ltr" },
-      { name: "Flooring Tiles", brand: "Kajaria Eternity GVT 600×1200mm", unitCost: 70, coverage: 1, unit: "Sq.ft" },
-      { name: "Wardrobe Panels", brand: "CenturyPly Club Prime BWP 19mm", unitCost: 150, coverage: 1, unit: "Sq.ft" },
-      { name: "Back Panels", brand: "CenturyPly Mikasa Sapphire 6mm", unitCost: 88, coverage: 1, unit: "Sq.ft" },
-      { name: "Ceiling Paint", brand: "Asian Paints Royale Shyne White", unitCost: 886, coverage: 50, unit: "Ltr" }
+    zone:"SW (Nairutya)",element:"Earth",
+    items:[
+      {name:"Wall Paint",brand:"Asian Paints Royale Glitz — Deep Walnut",unitCost:650,cov:40,unit:"Ltr",factor:.45},
+      {name:"Flooring Tiles",brand:"Kajaria Eternity GVT 600×1200mm",unitCost:70,cov:1,unit:"Sq.ft",factor:1.1},
+      {name:"Wardrobe Panels",brand:"CenturyPly Club Prime BWP 19mm",unitCost:150,cov:1,unit:"Sq.ft",factor:.55},
+      {name:"Back Panels",brand:"CenturyPly Mikasa Sapphire 6mm",unitCost:88,cov:1,unit:"Sq.ft",factor:.3},
+      {name:"Ceiling Paint",brand:"Asian Paints Royale Shyne White",unitCost:886,cov:50,unit:"Ltr",factor:.22}
     ]
   },
   "Kitchen": {
-    zone: "SE (Agni)", element: "Fire",
-    items: [
-      { name: "Wall Paint (Heat-Resistant)", brand: "Asian Paints Royale Glitz Terracotta", unitCost: 650, coverage: 40, unit: "Ltr" },
-      { name: "Kitchen Tiles", brand: "Kajaria Eternity GVT 600×1200mm", unitCost: 70, coverage: 1, unit: "Sq.ft" },
-      { name: "Cabinet Shutters", brand: "CenturyPly Club Prime BWP 19mm", unitCost: 150, coverage: 1, unit: "Sq.ft" },
-      { name: "Back Panel / Loft", brand: "CenturyPly Mikasa Sapphire 6mm", unitCost: 88, coverage: 1, unit: "Sq.ft" }
+    zone:"SE (Agni)",element:"Fire",
+    items:[
+      {name:"Wall Paint — Heat Resistant",brand:"Asian Paints Royale Glitz Terracotta",unitCost:650,cov:40,unit:"Ltr",factor:.35},
+      {name:"Kitchen Floor Tiles",brand:"Kajaria Eternity GVT 600×1200mm",unitCost:70,cov:1,unit:"Sq.ft",factor:1.1},
+      {name:"Cabinet Shutters",brand:"CenturyPly Club Prime BWP 19mm",unitCost:150,cov:1,unit:"Sq.ft",factor:.5},
+      {name:"Back Panel / Loft",brand:"CenturyPly Mikasa Sapphire 6mm",unitCost:88,cov:1,unit:"Sq.ft",factor:.28},
+      {name:"Counter Dado Tiles",brand:"Kajaria Eternity GVT 300×600mm",unitCost:65,cov:1,unit:"Sq.ft",factor:.4}
     ]
   },
   "Living Room": {
-    zone: "N (Prosperity)", element: "Water",
-    items: [
-      { name: "Feature Wall Paint", brand: "Asian Paints Royale Shyne High Sheen", unitCost: 886, coverage: 50, unit: "Ltr" },
-      { name: "Flooring — Large Format", brand: "Kajaria Eternity GVT 600×1200mm", unitCost: 75, coverage: 1, unit: "Sq.ft" },
-      { name: "TV Unit Panels", brand: "CenturyPly Club Prime BWP 19mm", unitCost: 150, coverage: 1, unit: "Sq.ft" },
-      { name: "Ceiling / Acoustic Board", brand: "CenturyPly Club Prime BWP 16mm", unitCost: 127, coverage: 1, unit: "Sq.ft" }
+    zone:"N (Prosperity)",element:"Water",
+    items:[
+      {name:"Feature Wall Paint",brand:"Asian Paints Royale Shyne High Sheen",unitCost:886,cov:50,unit:"Ltr",factor:.3},
+      {name:"Flooring — Large Format",brand:"Kajaria Eternity GVT 600×1200mm",unitCost:75,cov:1,unit:"Sq.ft",factor:1.12},
+      {name:"TV Unit Panels",brand:"CenturyPly Club Prime BWP 19mm",unitCost:150,cov:1,unit:"Sq.ft",factor:.45},
+      {name:"False Ceiling Board",brand:"CenturyPly Club Prime BWP 16mm",unitCost:127,cov:1,unit:"Sq.ft",factor:.35},
+      {name:"Wall Paint — Rest",brand:"Asian Paints Royale Glitz Ultra Sheen",unitCost:650,cov:40,unit:"Ltr",factor:.4}
     ]
   },
   "Pooja Room": {
-    zone: "NE (Ishanya)", element: "Water / Ether",
-    items: [
-      { name: "Wall Paint — Sacred White", brand: "Asian Paints Royale Shyne Ultra White", unitCost: 886, coverage: 50, unit: "Ltr" },
-      { name: "Flooring — Marble Matt", brand: "Kajaria Pietra Ocre Matt 600×600mm", unitCost: 543, coverage: 1, unit: "Unit" },
-      { name: "Mandir Back Panel", brand: "CenturyPly Mikasa Sapphire 6mm", unitCost: 88, coverage: 1, unit: "Sq.ft" },
-      { name: "Frame / Dado Panel", brand: "CenturyPly Club Prime BWP 16mm", unitCost: 127, coverage: 1, unit: "Sq.ft" }
+    zone:"NE (Ishanya)",element:"Water / Ether",
+    items:[
+      {name:"Wall Paint — Sacred White",brand:"Asian Paints Royale Shyne Ultra White",unitCost:886,cov:50,unit:"Ltr",factor:.4},
+      {name:"Flooring — Marble Matt",brand:"Kajaria Pietra Ocre Matt 600×600mm",unitCost:543,cov:1,unit:"Unit",factor:.25},
+      {name:"Mandir Back Panel",brand:"CenturyPly Mikasa Sapphire 6mm",unitCost:88,cov:1,unit:"Sq.ft",factor:.35},
+      {name:"Frame / Dado Panel",brand:"CenturyPly Club Prime BWP 16mm",unitCost:127,cov:1,unit:"Sq.ft",factor:.25}
     ]
   },
   "Kids Bedroom": {
-    zone: "NW (Vayu)", element: "Air",
-    items: [
-      { name: "Wall Paint — Soft Tones", brand: "Asian Paints Royale Glitz Ultra Sheen", unitCost: 650, coverage: 40, unit: "Ltr" },
-      { name: "Flooring", brand: "Kajaria Eternity GVT 600×1200mm", unitCost: 65, coverage: 1, unit: "Sq.ft" },
-      { name: "Study Unit Panels", brand: "CenturyPly Club Prime BWP 16mm", unitCost: 127, coverage: 1, unit: "Sq.ft" },
-      { name: "Wardrobe Back Panel", brand: "CenturyPly Mikasa Sapphire 6mm", unitCost: 88, coverage: 1, unit: "Sq.ft" }
+    zone:"NW (Vayu)",element:"Air",
+    items:[
+      {name:"Wall Paint — Soft Tones",brand:"Asian Paints Royale Glitz Ultra Sheen",unitCost:650,cov:40,unit:"Ltr",factor:.45},
+      {name:"Flooring",brand:"Kajaria Eternity GVT 600×1200mm",unitCost:65,cov:1,unit:"Sq.ft",factor:1.1},
+      {name:"Study Unit Panels",brand:"CenturyPly Club Prime BWP 16mm",unitCost:127,cov:1,unit:"Sq.ft",factor:.45},
+      {name:"Wardrobe Back Panel",brand:"CenturyPly Mikasa Sapphire 6mm",unitCost:88,cov:1,unit:"Sq.ft",factor:.28}
     ]
   },
-  "Study / Home Office": {
-    zone: "N (Prosperity)", element: "Water",
-    items: [
-      { name: "Wall Paint — Focus Grey", brand: "Asian Paints Royale Shyne Dusk", unitCost: 886, coverage: 50, unit: "Ltr" },
-      { name: "Flooring", brand: "Kajaria Eternity GVT 600×1200mm", unitCost: 68, coverage: 1, unit: "Sq.ft" },
-      { name: "Desk / Shelving Panels", brand: "CenturyPly Club Prime BWP 19mm", unitCost: 150, coverage: 1, unit: "Sq.ft" },
-      { name: "Cabinet Back / Divider", brand: "CenturyPly Mikasa Sapphire 6mm", unitCost: 88, coverage: 1, unit: "Sq.ft" }
+  "Study": {
+    zone:"N (Prosperity)",element:"Water",
+    items:[
+      {name:"Wall Paint — Focus Tone",brand:"Asian Paints Royale Shyne Dusk Grey",unitCost:886,cov:50,unit:"Ltr",factor:.35},
+      {name:"Flooring",brand:"Kajaria Eternity GVT 600×1200mm",unitCost:68,cov:1,unit:"Sq.ft",factor:1.1},
+      {name:"Desk & Shelving Panels",brand:"CenturyPly Club Prime BWP 19mm",unitCost:150,cov:1,unit:"Sq.ft",factor:.5},
+      {name:"Cabinet Back / Divider",brand:"CenturyPly Mikasa Sapphire 6mm",unitCost:88,cov:1,unit:"Sq.ft",factor:.3}
+    ]
+  },
+  "Balcony": {
+    zone:"E (Sun / Health)",element:"Space",
+    items:[
+      {name:"Outdoor Floor Tiles",brand:"Kajaria Eternity GVT 600×600mm Anti-Skid",unitCost:72,cov:1,unit:"Sq.ft",factor:1.05},
+      {name:"Wall Primer & Paint",brand:"Asian Paints Royale Glitz Exterior",unitCost:620,cov:45,unit:"Ltr",factor:.3},
+      {name:"Railing Dado Panel",brand:"CenturyPly Club Prime BWP 16mm",unitCost:127,cov:1,unit:"Sq.ft",factor:.4}
     ]
   }
 };
 
-let selectedRoom = "Master Bedroom";
-let selectedTier = "Mid-Range";
+const DIR_LABELS = {
+  NE:"NE (Ishanya)",SE:"SE (Agni)",SW:"SW (Nairutya)",NW:"NW (Vayu)",
+  N:"N (Prosperity)",S:"S (Strength)",E:"E (Health)",W:"W (Legacy)"
+};
+const TIER_MULT = {Basic:.72,"Mid-Range":1.0,Luxury:1.48};
 
-function selectRoom(el) {
-  document.querySelectorAll('.room-pill').forEach(p => p.classList.remove('active'));
+let selRoom = "Master Bedroom";
+let selTier = "Mid-Range";
+
+function pickRoom(el){
+  document.querySelectorAll('.room-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  selectedRoom = el.dataset.room;
+  selRoom = el.dataset.room;
+}
+function pickTier(el){
+  document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  selTier = el.dataset.tier;
 }
 
-function selectTier(el) {
-  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  selectedTier = el.dataset.tier;
-}
+function generateBOQ(){
+  const btn = document.getElementById('genBtnTxt');
+  const ph  = document.getElementById('boqPlaceholder');
+  const shim= document.getElementById('boqShimmer');
+  const res = document.getElementById('boqResult');
 
-function generateBOQ() {
-  const btn = document.getElementById('gen-btn-text');
-  btn.textContent = '⏳ Analysing Vastu Rules...';
+  btn.textContent = '⏳ Analysing Vastu Zone...';
+  ph.style.display  = 'none';
+  res.style.display = 'none';
+  shim.style.display= 'block';
 
-  const len = parseFloat(document.getElementById('room-length').value) || 14;
-  const wid = parseFloat(document.getElementById('room-width').value) || 12;
-  const sqft = Math.round(len * wid);
-  const dir = document.getElementById('vastu-dir').value;
-  const dirLabels = {NE:'NE (Ishanya)',SE:'SE (Agni)',SW:'SW (Nairutya)',NW:'NW (Vayu)',N:'N (Prosperity)',S:'S (Strength)',E:'E (Health)',W:'W (Legacy)'};
-  const tierMultiplier = {Basic:0.75, 'Mid-Range':1.0, Luxury:1.45};
-
-  setTimeout(() => {
+  setTimeout(()=>{
     btn.textContent = '⚡ Calculating Material Costs...';
-    setTimeout(() => {
-      const data = boqData[selectedRoom] || boqData["Master Bedroom"];
-      const mult = tierMultiplier[selectedTier] || 1;
+    setTimeout(()=>{
+      const len  = parseFloat(document.getElementById('rLen').value)||14;
+      const wid  = parseFloat(document.getElementById('rWid').value)||12;
+      const sqft = Math.round(len*wid);
+      const dir  = document.getElementById('vastDir').value;
+      const data = ROOMS[selRoom]||ROOMS["Master Bedroom"];
+      const mult = TIER_MULT[selTier]||1;
 
-      // Populate output
-      document.getElementById('out-room-title').textContent = selectedRoom;
-      document.getElementById('out-room-meta').textContent = `${sqft} sq.ft · ${dirLabels[dir]} · ${selectedTier}`;
-      document.getElementById('out-vastu-badge').textContent = `✓ ${data.zone} Vastu Compliant`;
+      document.getElementById('outTitle').textContent  = selRoom;
+      document.getElementById('outMeta').textContent   = `${sqft} sq.ft · ${DIR_LABELS[dir]} · ${selTier}`;
+      document.getElementById('outBadge').textContent  = `✓ ${data.zone} Vastu Compliant`;
 
-      const tbody = document.getElementById('boq-tbody');
-      tbody.innerHTML = '';
-      let total = 0;
+      const tbody = document.getElementById('boqTbody');
+      tbody.innerHTML='';
+      let total=0;
 
-      data.items.forEach(item => {
-        let qty, cost;
-        if (item.unit === 'Ltr') {
-          qty = Math.ceil((sqft / item.coverage) * mult);
-          cost = qty * item.unitCost;
-        } else if (item.unit === 'Unit') {
-          qty = Math.ceil((sqft / 4) * mult);
-          cost = qty * item.unitCost;
+      data.items.forEach(item=>{
+        let qty,cost;
+        if(item.unit==='Ltr'){
+          qty  = Math.max(1,Math.ceil((sqft*item.factor/item.cov)*mult));
+          cost = qty*item.unitCost;
+        } else if(item.unit==='Unit'){
+          qty  = Math.max(1,Math.ceil(sqft*item.factor*mult));
+          cost = qty*item.unitCost;
         } else {
-          qty = Math.ceil(sqft * 0.6 * mult);
-          cost = qty * item.unitCost;
+          qty  = Math.max(1,Math.ceil(sqft*item.factor*mult));
+          cost = qty*item.unitCost;
         }
-        total += cost;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>
-            <div class="mat-name">${item.name}</div>
-            <div class="mat-brand">${item.brand}</div>
-          </td>
-          <td class="mat-qty">${qty} ${item.unit}</td>
-          <td class="mat-cost">₹${cost.toLocaleString('en-IN')}</td>
-        `;
+        total+=cost;
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td><div class="mat-name">${item.name}</div><div class="mat-brand">${item.brand}</div></td>
+          <td class="mat-qty">${qty.toLocaleString('en-IN')} ${item.unit}</td>
+          <td class="mat-cost">₹${cost.toLocaleString('en-IN')}</td>`;
         tbody.appendChild(tr);
       });
 
-      document.getElementById('boq-total-val').textContent = `₹${total.toLocaleString('en-IN')}`;
+      document.getElementById('boqTotal').textContent = '₹'+total.toLocaleString('en-IN');
 
-      document.getElementById('boq-placeholder').style.display = 'none';
-      const out = document.getElementById('boq-output');
-      out.style.display = 'block';
-
-      btn.textContent = '✓ BOQ Generated — Regenerate';
-    }, 800);
-  }, 600);
+      shim.style.display='none';
+      res.style.display='block';
+      btn.textContent='✓ Regenerate BOQ';
+      showToast('✓ Vastu-smart BOQ generated!');
+    },900);
+  },600);
 }
 
-function shareWA() {
-  const room = document.getElementById('out-room-title').textContent;
-  const total = document.getElementById('boq-total-val').textContent;
-  const meta = document.getElementById('out-room-meta').textContent;
-  const msg = encodeURIComponent(`*Vastu-Procure AI BOQ*\n\n*Room:* ${room}\n*Specs:* ${meta}\n*Total Estimate:* ${total}\n\n_Generated by Vastu-Procure AI_\nhttps://tdnygpankq.zite.so/`);
-  window.open(`https://wa.me/?text=${msg}`, '_blank');
+function shareWA(){
+  const title = document.getElementById('outTitle').textContent;
+  const total = document.getElementById('boqTotal').textContent;
+  const meta  = document.getElementById('outMeta').textContent;
+  if(!title){showToast('Generate a BOQ first!');return;}
+  const msg = encodeURIComponent(
+    `*Vastu-Procure AI — BOQ*\n\n*Room:* ${title}\n*Specs:* ${meta}\n*Total Estimate:* ${total}\n\n_Generated by Vastu-Procure AI — India's first Vastu-intelligent BOQ platform_\n\nhttps://vastuprocureai.github.io/vastu-procure-ai`
+  );
+  window.open('https://wa.me/?text='+msg,'_blank');
 }
 
-function downloadPDF() {
-  alert('PDF export: Connect your Make.com webhook to generate branded PDF via Google Docs template. See CLAUDE.md for integration guide.');
+function downloadPDF(){
+  showToast('PDF export — connect Make.com webhook to activate');
 }
 
-/* ── MOBILE MENU ─── */
-function toggleMenu() {
-  const drawer = document.getElementById('nav-drawer');
-  drawer.classList.toggle('open');
-}
-
-/* ── SCROLL REVEAL ─── */
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-/* ── COUNT UP STATS ─── */
-function countUp(el, target, suffix = '') {
-  let start = 0;
-  const inc = target / 60;
-  const timer = setInterval(() => {
-    start += inc;
-    if (start >= target) { start = target; clearInterval(timer); }
-    el.textContent = Math.round(start).toLocaleString('en-IN') + suffix;
-  }, 25);
-}
-
-const statsObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const target = parseInt(e.target.dataset.target);
-      const suffix = e.target.dataset.target === '98' ? '%' : '+';
-      countUp(e.target, target, suffix);
-      statsObs.unobserve(e.target);
-    }
-  });
-}, { threshold: 0.5 });
-document.querySelectorAll('.stat-n[data-target]').forEach(el => statsObs.observe(el));
-
-/* ── HERO COUNTERS ─── */
-const heroObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const targets = { stat1: [1200, '+'], stat2: [28, ' cities'], stat3: [340, '+'] };
-      Object.entries(targets).forEach(([id, [val, s]]) => countUp(document.getElementById(id), val, s));
-      heroObs.disconnect();
-    }
-  });
-}, { threshold: 0.3 });
-heroObs.observe(document.getElementById('hero'));
-
-/* ── NAV SCROLL SHADOW ─── */
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('main-nav');
-  nav.style.boxShadow = window.scrollY > 20 ? '0 1px 0 rgba(212,168,67,.08)' : 'none';
+/* ── NAV ──────────────────────────────────────────────────── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>30);
 });
+
+function toggleMenu(){
+  const m=document.getElementById('mobileMenu');
+  const h=document.getElementById('hamburger');
+  const open=m.classList.toggle('open');
+  h.classList.toggle('open',open);
+  document.body.style.overflow=open?'hidden':'';
+}
+
+function scrollTo(id){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  // Close mobile menu if open
+  const m=document.getElementById('mobileMenu');
+  if(m.classList.contains('open'))toggleMenu();
+}
+
+/* ── SCROLL REVEAL ────────────────────────────────────────── */
+const revObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+
+/* ── COUNT-UP STATS ───────────────────────────────────────── */
+function countUp(el,target,suffix){
+  let v=0;const step=target/55;
+  const t=setInterval(()=>{
+    v+=step;if(v>=target){v=target;clearInterval(t)}
+    el.textContent=Math.round(v).toLocaleString('en-IN')+suffix;
+  },22);
+}
+const numObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const el=e.target;
+      countUp(el,+el.dataset.target,el.dataset.suffix||'');
+      numObs.unobserve(el);
+    }
+  });
+},{threshold:.5});
+document.querySelectorAll('.stat-n[data-target]').forEach(el=>numObs.observe(el));
+
+/* Hero stats count-up on load */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    countUp(document.getElementById('s1'),1200,'+');
+    countUp(document.getElementById('s2'),28,' cities');
+    countUp(document.getElementById('s3'),340,'+');
+  },800);
+});
+
+/* ── TOAST ────────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ── HERO DOT FIELD ───────────────────────────────────────── */
+(function spawnDots(){
+  const wrap=document.getElementById('heroDots');
+  for(let i=0;i<38;i++){
+    const s=document.createElement('span');
+    s.style.cssText=`
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${3+Math.random()*5}s;
+      --delay:${Math.random()*6}s;
+      opacity:0;
+    `;
+    wrap.appendChild(s);
+  }
+})();
 </script>
 </body>
 </html>
